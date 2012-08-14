@@ -2,7 +2,7 @@
  *  Event Based Animation v1.0 - jQuery plugin
  *
  *  Copyright (c) 2012 Deux Huit Huit (http://www.deuxhuithuit.com/)
- *  Licensed under the MIT (https://raw.github.com/DeuxHuitHuit/jQuery-event-based-animation/blob/master/LICENSE.txt)
+ *  Licensed under the MIT (https://raw.github.com/DeuxHuitHuit/jQuery-event-based-animation/master/LICENSE.txt)
  */
 (function ($, undefined) {
 	
