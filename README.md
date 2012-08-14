@@ -1,4 +1,5 @@
-jQuery-event-based-animation
-============================
+# jQuery Event Based Animation
 
-jQuery plugin that offers a different way to do animation. End (or target values) can be changed during the animation.
+Version 1.0
+
+jQuery plugin that offers a different way to do animations. End (or target) values can be changed during the animation.
