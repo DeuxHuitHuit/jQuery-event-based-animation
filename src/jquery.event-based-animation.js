@@ -24,21 +24,21 @@
 		},
 		
 		//Last scroll event trigered
-		scrollEventTimeStamp = now(),
-		lastAnimatedTimeStamp = scrollEventTimeStamp,
+		eventTimeStamp = now(),
+		lastAnimatedTimeStamp = eventTimeStamp,
 		
 		//Save the currentStepAnimation based on the last trigered scrollEvent
-		//Will be refreshed every time the scrollEventTimeStamp is different than the lastAnimatedTimeStamp
-		currentStepAnimation = {
+		//Will be refreshed every time the eventTimeStamp is different than the lastAnimatedTimeStamp
+		/*currentStepAnimation = {
 			x: 0,
 			y: 0
-		},
+		},*/
 		
 		//Save the last direction (Refreshed at every tick)
-		currentAnimationDirection = {
+		/*currentAnimationDirection = {
 			x: 0,
 			y: 0
-		},
+		},*/
 		
 		currentAnimationDuration = {
 			x: 0,
@@ -89,34 +89,42 @@
 		//Reference the current timer
 		timer = null,
 		
+		defaultOffset = {left:0,top:0},
 		
-		
-		_handleScroll = function (targetPosition) {
-		
+		_handleScroll = function (e, o, targetPosition) {
+			var offset = o.container.offset() || defaultOffset;
+			targetPosition.x = o.container.scrollLeft() - offset.left;
+			targetPosition.y = o.container.scrollTop() - offset.top;
 		},
 		
-		_handleClick = function (targetPosition) {
-		
+		_handleMouse = function (e, o, targetPosition) {
+			var offset = o.container.offset() || defaultOffset;
+			targetPosition.x = e.pageX - offset.left;
+			targetPosition.y = e.pageY - offset.top;
 		},
 		
-		_handleHover = function (targetPosition) {
-		
+		_handleTouch = function (e, o, targetPosition) {
+			var offset = o.container.offset() || defaultOffset,
+				touch = e.originalEvent.touches[0];
+			targetPosition.x = touch.pageX - offset.left;
+			targetPosition.y = touch.pageY - offset.top;
 		},
 		
 		// Event Strategies
 		_eventStrategies = {
 			scroll: _handleScroll,
-			click: _handleClick,
-			mouseover: _handleHover
+			click: _handleMouse,
+			mouseover: _handleMouse,
+			touchmove: _handleTouch
 		},
 		
 		// Handle the container event
 		_handleEvent = function (e) {
 			// Call the strategy 
-			_eventStrategies[o.event].call(t, targetPosition);
+			_eventStrategies[o.event].call(t, e, o, targetPosition);
 			
 			// Update the event time
-			scrollEventTimeStamp = now()-1; // make it in the pass
+			eventTimeStamp = now()-1; // make it in the pass
 			
 			//console.log('New target ' + targetPosition.y);
 			
@@ -135,14 +143,15 @@
 			return timer;
 		},
 	
+		// parses the duration options
 		getDuration = function(o, targetDistance) {
-			if(!$.isFunction(o.durationCallback)) {
+			if(!$.isFunction(o.duration)) {
 				return {
-					x: o.durationX,
-					y: o.durationY
+					x: o.durationX || o.duration,
+					y: o.durationY || o.duration
 				};
 			} else {
-				var result = o.durationCallback(targetDistance);
+				var result = o.duration.call(t, o, targetDistance);
 				//console.log('y speed : ' + result.y);
 				return {
 					x: Math.abs(result.x),
@@ -152,20 +161,11 @@
 		},
 		
 		// allow to calculate the first easing parameter
-		getLegacyEasingValue = function () {
-			var temp = {
-				x: currentPosition.x + (currentAnimationDirection.x * currentStepAnimation.x),
-				y: currentPosition.y + (currentAnimationDirection.y * currentStepAnimation.y)
+		getLegacyEasingValue = function (currentAnimationTime) {
+			return {
+				x: currentStartAnimationPosition.x + (Math.min(1, $.sdiv(currentAnimationTime, currentAnimationDuration.x)) * (targetPosition.x-currentStartAnimationPosition.x)),
+				y: currentStartAnimationPosition.y + (Math.min(1, $.sdiv(currentAnimationTime, currentAnimationDuration.y)) * (targetPosition.y-currentStartAnimationPosition.y))
 			};
-
-			// assure we do not go further than the target
-			if (Math.abs(temp.x - targetPosition.x) < currentStepAnimation.x) {
-				temp.x = targetPosition.x;
-			}
-			if (Math.abs(temp.y - targetPosition.y) < currentStepAnimation.y) {
-				temp.y = targetPosition.y;
-			}
-			return temp;
 		},
 		
 		//Allow to stop the animation
@@ -189,27 +189,18 @@
 				if (targetDistance.x !== 0 || targetDistance.y !== 0) {
 					
 					// if the value changed since lass pass
-					if (scrollEventTimeStamp > lastAnimatedTimeStamp) {
+					if (eventTimeStamp > lastAnimatedTimeStamp) {
 						
+						// Update current duration
 						currentAnimationDuration = getDuration(o, targetDistance);
-						
-						var
-						
-						//Define nb of cycle for the duration asked (duration / tick = nb cycle)
-						cycleCountX = Math.ceil($.sdiv(currentAnimationDuration.x, o.tick)),
-						cycleCountY = Math.ceil($.sdiv(currentAnimationDuration.y, o.tick));
-						
-						//Define the new step needed
-						currentStepAnimation.x = Math.abs($.sdiv(targetDistance.x, cycleCountX));
-						currentStepAnimation.y = Math.abs($.sdiv(targetDistance.y, cycleCountY));
 						
 						//Save the start point of the animation
 						currentStartAnimationPosition.x = currentPosition.x;
 						currentStartAnimationPosition.y = currentPosition.y;
 						
 						// save the new directions
-						currentAnimationDirection.x = targetDistance.x < 0 ? -1 : targetDistance.x > 0 ? 1 : 0;
-						currentAnimationDirection.y = targetDistance.y < 0 ? -1 : targetDistance.y > 0 ? 1 : 0;
+						//currentAnimationDirection.x = targetDistance.x < 0 ? -1 : targetDistance.x > 0 ? 1 : 0;
+						//currentAnimationDirection.y = targetDistance.y < 0 ? -1 : targetDistance.y > 0 ? 1 : 0;
 						
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
 						// This acts as the new animation start
@@ -223,7 +214,7 @@
 					currentAnimationTime = now() - lastAnimatedTimeStamp,
 					
 					// Linear/swing algorigthm
-					linearPosition = getLegacyEasingValue(),
+					linearPosition = getLegacyEasingValue(currentAnimationTime),
 					easingFx = o.easing || $.easing.def || 'linear',
 					easingCurPosition = {
 						// we documented the parameter names and logic, since there is an error on
@@ -236,12 +227,15 @@
 					// end var
 					
 					//console.log(targetPosition.x + ' ' + targetPosition.y + ' - ' + easingCurPosition.x + ' ' + easingCurPosition.y);
-					console.log(lastAnimatedTimeStamp +
+					if (!!o.debug && !!window.console) {
+						console.log(lastAnimatedTimeStamp +
 								' Target ' + targetPosition.y + 
 								' - Start ' + parseInt(currentStartAnimationPosition.y,10) + 
+								' - Linear ' + parseInt(linearPosition.y,10) + 
 								' - Eased ' + parseInt(easingCurPosition.y,10) + 
 								' - Time ' + Math.min(currentAnimationTime, currentAnimationDuration.y) + 
 								' - Duration ' + currentAnimationDuration.y);
+					}
 					
 					// update currentPosition state
 					currentPosition.y = easingCurPosition.y;
@@ -276,7 +270,8 @@
 			duration: 0, // Both axis animation duration. Numeric or function
 			stop: null, // A stop function to stop the animation. Your logic, your rules.
 			step: null, // A function to call at each step of the animation.
-			easing: null // A easing function to use. $.easing.def or linear if omitted.
+			easing: null, // A easing function to use. $.easing.def or linear if omitted.
+			debug: false // set to true to get extra data in the console.
 		}, options);
 		
 		// assure container
