@@ -89,14 +89,36 @@
 		//Reference the current timer
 		timer = null,
 		
-		//Handle the container scroll event
-		_scroll = function (e) {
-			targetPosition.x = t.scrollLeft();
-			targetPosition.y = t.scrollTop();
+		
+		
+		_handleScroll = function (targetPosition) {
+		
+		},
+		
+		_handleClick = function (targetPosition) {
+		
+		},
+		
+		_handleHover = function (targetPosition) {
+		
+		},
+		
+		// Event Strategies
+		_eventStrategies = {
+			scroll: _handleScroll,
+			click: _handleClick,
+			mouseover: _handleHover
+		},
+		
+		// Handle the container event
+		_handleEvent = function (e) {
+			// Call the strategy 
+			_eventStrategies[o.event].call(t, targetPosition);
 			
+			// Update the event time
 			scrollEventTimeStamp = now()-1; // make it in the pass
 			
-			console.log('New target ' + targetPosition.y);
+			//console.log('New target ' + targetPosition.y);
 			
 			// Start the animation right now
 			_nextFrame();
@@ -246,21 +268,23 @@
 		
 		// assure minimal option object
 		o = $.extend({
-			container: $(window),
-			tick: 16,
-			durationX: 500,
-			durationY: 500,
-			durationCallback: null,
-			stop: null,
-			tickCallback: null,
-			easing: null
+			container: null, // The DOMElement where to listen the event. Target if omitted.
+			tick: 16, // Default timeout when requestAnimationFrame is not available. In ms.
+			event: 'scroll', // The event to listen to
+			durationX: null, // X axis animation duration. Numeric. duration if omitted.
+			durationY: null, // Y axis animation duration. Numeric. duration if omitted.
+			duration: 0, // Both axis animation duration. Numeric or function
+			stop: null, // A stop function to stop the animation. Your logic, your rules.
+			step: null, // A function to call at each step of the animation.
+			easing: null // A easing function to use. $.easing.def or linear if omitted.
 		}, options);
 		
 		// assure container
-		o.container = $(o.container);
+		// if not container is set, use the target
+		o.container = $(o.container || t);
 		
-		// hook up on mouse move event
-		o.container.scroll(_scroll);
+		// hook up on event
+		o.container.on(_handleEvent);
 		
 		// start timer
 		startTimer();
