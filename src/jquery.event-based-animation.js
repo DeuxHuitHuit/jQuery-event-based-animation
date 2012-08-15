@@ -271,6 +271,7 @@
 			stop: null, // A stop function to stop the animation. Your logic, your rules.
 			step: null, // A function to call at each step of the animation.
 			easing: null, // A easing function to use. $.easing.def or linear if omitted.
+			strategy: null, // A strategy function for your custom event.
 			debug: false // set to true to get extra data in the console.
 		}, options);
 		
@@ -278,10 +279,14 @@
 		// if not container is set, use the target
 		o.container = $(o.container || t);
 		
+		// Add the new strategy if needed
+		_eventStrategies[o.event] = o.strategy;
+		
 		// hook up on event
 		o.container.on(_handleEvent);
 		
 		// start timer
 		startTimer();
+		
 	}; // end $.fn.extend
 })(jQuery);
