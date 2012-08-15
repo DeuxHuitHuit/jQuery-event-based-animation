@@ -23,34 +23,33 @@
 			return (new Date()).getTime();
 		},
 		
-		//Last scroll event trigered
+		// Safe division
+		sdiv = function (n, d) {
+			if (!n || !d) {
+				return 0;
+			}
+			return n/d;
+		},
+		
+		// Last event trigered
 		eventTimeStamp = now(),
+		
+		// Last animation frame
 		lastAnimatedTimeStamp = eventTimeStamp,
 		
-		//Save the currentStepAnimation based on the last trigered scrollEvent
-		//Will be refreshed every time the eventTimeStamp is different than the lastAnimatedTimeStamp
-		/*currentStepAnimation = {
-			x: 0,
-			y: 0
-		},*/
-		
-		//Save the last direction (Refreshed at every tick)
-		/*currentAnimationDirection = {
-			x: 0,
-			y: 0
-		},*/
-		
+		// Current running animation duration
 		currentAnimationDuration = {
 			x: 0,
 			y: 0
 		},
 		
+		// Current animation start values
 		currentStartAnimationPosition = {
 			x: 0,
 			y: 0
 		},
 		
-		//Save the target position (updated by the scroll event)
+		//Save the target position (updated by the event)
 		targetPosition = {
 			x: 0,
 			y: 0
@@ -92,9 +91,8 @@
 		defaultOffset = {left:0,top:0},
 		
 		_handleScroll = function (e, o, targetPosition) {
-			var offset = o.container.offset() || defaultOffset;
-			targetPosition.x = o.container.scrollLeft() - offset.left;
-			targetPosition.y = o.container.scrollTop() - offset.top;
+			targetPosition.x = o.container.scrollLeft();
+			targetPosition.y = o.container.scrollTop();
 		},
 		
 		_handleMouse = function (e, o, targetPosition) {
@@ -115,21 +113,29 @@
 			scroll: _handleScroll,
 			click: _handleMouse,
 			mouseover: _handleMouse,
+			mousemove: _handleMouse,
 			touchmove: _handleTouch
 		},
 		
 		// Handle the container event
 		_handleEvent = function (e) {
-			// Call the strategy 
-			_eventStrategies[o.event].call(t, e, o, targetPosition);
+			var strategy = _eventStrategies[o.event];
 			
-			// Update the event time
-			eventTimeStamp = now()-1; // make it in the pass
-			
-			//console.log('New target ' + targetPosition.y);
-			
-			// Start the animation right now
-			_nextFrame();
+			if ($.isFunction(strategy)) {
+				// Call the strategy 
+				strategy.call(t, e, o, targetPosition);
+				
+				// Update the event time
+				eventTimeStamp = now()-1; // make it in the pass
+				
+				//console.log('New target ' + targetPosition.y);
+				
+				// Start the animation right now
+				_nextFrame();
+				
+			} else if (!!window.console) {
+				console.err('No strategy found for event "' + o.event + '"');
+			}
 		},
 		
 		//Start a new timer
@@ -163,8 +169,8 @@
 		// allow to calculate the first easing parameter
 		getLegacyEasingValue = function (currentAnimationTime) {
 			return {
-				x: currentStartAnimationPosition.x + (Math.min(1, $.sdiv(currentAnimationTime, currentAnimationDuration.x)) * (targetPosition.x-currentStartAnimationPosition.x)),
-				y: currentStartAnimationPosition.y + (Math.min(1, $.sdiv(currentAnimationTime, currentAnimationDuration.y)) * (targetPosition.y-currentStartAnimationPosition.y))
+				x: currentStartAnimationPosition.x + (Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration.x)) * (targetPosition.x-currentStartAnimationPosition.x)),
+				y: currentStartAnimationPosition.y + (Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration.y)) * (targetPosition.y-currentStartAnimationPosition.y))
 			};
 		},
 		
@@ -238,7 +244,7 @@
 					}
 					
 					// update currentPosition state
-					currentPosition.y = easingCurPosition.y;
+					currentPosition = easingCurPosition;
 					
 					// if we still have time left on the animation
 					if (currentAnimationTime < currentAnimationDuration.x || currentAnimationTime < currentAnimationDuration.y) {
@@ -250,8 +256,13 @@
 					}
 					
 					// call callback with new ghost position
-					if ($.isFunction(o.tickCallback)) {
-						o.tickCallback.call(t, currentAnimationTime, currentPosition);
+					if ($.isFunction(o.step)) {
+						o.step.call(t, currentAnimationTime, currentPosition);
+					}
+					
+					// End Callback
+					if (timer === null && $.isFunction(o.complete)) {
+						o.complete.call(t);
 					}
 				} 
 			} else {
@@ -270,6 +281,7 @@
 			duration: 0, // Both axis animation duration. Numeric or function
 			stop: null, // A stop function to stop the animation. Your logic, your rules.
 			step: null, // A function to call at each step of the animation.
+			complete: null, // A callback function called when the animation ends.
 			easing: null, // A easing function to use. $.easing.def or linear if omitted.
 			strategy: null, // A strategy function for your custom event.
 			debug: false // set to true to get extra data in the console.
@@ -280,10 +292,12 @@
 		o.container = $(o.container || t);
 		
 		// Add the new strategy if needed
-		_eventStrategies[o.event] = o.strategy;
+		if ($.isFunction(o.strategy)) {
+			_eventStrategies[o.event] = o.strategy;
+		}
 		
 		// hook up on event
-		o.container.on(_handleEvent);
+		o.container.on(o.event, _handleEvent);
 		
 		// start timer
 		startTimer();

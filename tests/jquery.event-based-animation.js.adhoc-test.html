@@ -8,6 +8,37 @@
 		#main {
 		
 		}
+		
+		#anim-scroll,
+		#anim-mousemove,
+		#anim-click {
+			width: 500px;
+			height: 200px;
+			position: relative;
+		}
+		
+		#anim-scroll {
+			background-color: red;
+			overflow: auto;
+		}
+		#anim-scroll-pane {
+			height: 1000px;
+		}
+		
+		#anim-mousemove {
+			background-color: green;
+		}
+		
+		#anim-click {
+			background-color: blue;
+		}
+		
+		.anim {
+			position: absolute;
+			width: 50px;
+			height: 50px;
+			background-color: yellow;
+		}
   	</style>
 	
 	<script>
@@ -38,14 +69,21 @@
 	<h1>jQuery Event Based Animation</h1>
 
 	<div id="main">
+		<h2>Scroll event</h2>
 		<div id="anim-scroll">
-		
+			<div id="anim-scroll-pane">
+				<div class="anim"></div>
+			</div>
 		</div>
-		<div id="anim-mouseover">
 		
+		<h2>Mousemove event</h2>
+		<div id="anim-mousemove">
+			<div class="anim"></div>
 		</div>
+		
+		<h2>Click event</h2>
 		<div id="anim-click">
-		
+			<div class="anim"></div>
 		</div>
 	</div>    
 
@@ -62,12 +100,56 @@
 		
 		aScroll = $('#anim-scroll'),
 		
-		aHover = $('#anim-scroll'),
+		aHover = $('#anim-mousemove'),
 		
-		aClick = $('#anim-scroll'),
+		aClick = $('#anim-click'),
+		
+		initScroll = function () {
+			aScroll.eventAnimate({
+				// event: scroll is the default
+				debug: true,
+				duration: 500,
+				step: function (time, position) {
+					this.find('.anim').css({
+						left: position.x + 'px',
+						top: position.y + 'px'
+					});
+				}
+			});
+		},
+		
+		initHover = function () {
+			aHover.eventAnimate({
+				event: 'mousemove',
+				debug: true,
+				duration: 350,
+				step: function (time, position) {
+					this.find('.anim').css({
+						left: position.x + 'px',
+						top: position.y + 'px'
+					});
+				}
+			});
+		},
+		
+		initClick = function () {
+			aClick.eventAnimate({
+				event: 'click',
+				debug: true,
+				duration: 1000,
+				step: function (time, position) {
+					this.find('.anim').css({
+						left: position.x + 'px',
+						top: position.y + 'px'
+					});
+				}
+			});
+		},
 		
 		init = function () {
-			
+			initScroll();
+			initHover();
+			initClick();
 		};
 		
 		$(init);
