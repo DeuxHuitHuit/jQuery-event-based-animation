@@ -88,6 +88,8 @@
 		//Reference the current timer
 		timer = null,
 		
+		isMoving = false,
+		
 		defaultOffset = {left:0,top:0},
 		
 		_handleScroll = function (e, o, targetPosition) {
@@ -127,8 +129,6 @@
 				
 				// Update the event time
 				eventTimeStamp = now()-1; // make it in the pass
-				
-				//console.log('New target ' + targetPosition.y);
 				
 				// Start the animation right now
 				_nextFrame();
@@ -243,6 +243,12 @@
 								' - Duration ' + currentAnimationDuration.y);
 					}
 					
+					// Start Callback
+					if (!isMoving && $.isFunction(o.start)) {
+						o.start.call(t);
+					}
+					isMoving = true;
+					
 					// update currentPosition state
 					currentPosition = easingCurPosition;
 					
@@ -253,6 +259,7 @@
 					} else {
 						// animation stopped
 						timer = null;
+						isMoving = false;
 					}
 					
 					// call callback with new ghost position
@@ -268,6 +275,7 @@
 			} else {
 				// we stop, no timer are needed
 				timer = null;
+				isMoving = false;
 			}
 		},
 		
@@ -282,6 +290,7 @@
 			stop: null, // A stop function to stop the animation. Your logic, your rules.
 			step: null, // A function to call at each step of the animation.
 			complete: null, // A callback function called when the animation ends.
+			start: null, // A callback function called when the animation begins.
 			easing: null, // A easing function to use. $.easing.def or linear if omitted.
 			strategy: null, // A strategy function for your custom event.
 			debug: false // set to true to get extra data in the console.
