@@ -116,7 +116,8 @@
 			click: _handleMouse,
 			mouseover: _handleMouse,
 			mousemove: _handleMouse,
-			touchmove: _handleTouch
+			touchmove: _handleTouch,
+			mousedrag: _handleMouse,
 		},
 		
 		// Handle the container event
@@ -153,15 +154,14 @@
 		getDuration = function(o, targetDistance) {
 			if(!$.isFunction(o.duration)) {
 				return {
-					x: o.durationX || o.duration,
-					y: o.durationY || o.duration
+					x: o.duration.x || o.duration,
+					y: o.duration.y || o.duration
 				};
 			} else {
 				var result = o.duration.call(t, o, targetDistance);
-				//console.log('y speed : ' + result.y);
 				return {
-					x: Math.abs(result.x),
-					y: Math.abs(result.y)
+					x: Math.abs(result.x || result),
+					y: Math.abs(result.y || result)
 				};
 			}
 		},
@@ -204,10 +204,6 @@
 						currentStartAnimationPosition.x = currentPosition.x;
 						currentStartAnimationPosition.y = currentPosition.y;
 						
-						// save the new directions
-						//currentAnimationDirection.x = targetDistance.x < 0 ? -1 : targetDistance.x > 0 ? 1 : 0;
-						//currentAnimationDirection.y = targetDistance.y < 0 ? -1 : targetDistance.y > 0 ? 1 : 0;
-						
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
 						// This acts as the new animation start
 						lastAnimatedTimeStamp = now();
@@ -232,7 +228,6 @@
 					
 					// end var
 					
-					//console.log(targetPosition.x + ' ' + targetPosition.y + ' - ' + easingCurPosition.x + ' ' + easingCurPosition.y);
 					if (!!o.debug && !!window.console) {
 						console.log(lastAnimatedTimeStamp +
 								' Target ' + targetPosition.y + 
@@ -284,9 +279,7 @@
 			container: null, // The DOMElement where to listen the event. Target if omitted.
 			tick: 16, // Default timeout when requestAnimationFrame is not available. In ms.
 			event: 'scroll', // The event to listen to
-			durationX: null, // X axis animation duration. Numeric. duration if omitted.
-			durationY: null, // Y axis animation duration. Numeric. duration if omitted.
-			duration: 0, // Both axis animation duration. Numeric or function
+			duration: 0, // Both axis animation duration. Numeric, object (x:1,y:1} or function
 			stop: null, // A stop function to stop the animation. Your logic, your rules.
 			step: null, // A function to call at each step of the animation.
 			complete: null, // A callback function called when the animation ends.
