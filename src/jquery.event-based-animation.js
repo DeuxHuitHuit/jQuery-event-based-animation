@@ -176,9 +176,9 @@
 		//Allow to stop the animation
 		_checkStop = function (o) {
 			if (!$.isFunction(o.stop)) {
-				return !!o;
+				return !!o.stop;
 			}
-			return o.stop();
+			return o.stop(o);
 		},
 		
 		//Called at every tick
