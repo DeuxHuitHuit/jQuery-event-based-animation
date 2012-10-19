@@ -116,8 +116,7 @@
 			click: _handleMouse,
 			mouseover: _handleMouse,
 			mousemove: _handleMouse,
-			touchmove: _handleTouch,
-			mousedrag: _handleMouse,
+			touchmove: _handleTouch
 		},
 		
 		// Handle the container event
@@ -154,14 +153,14 @@
 		getDuration = function(o, targetDistance) {
 			if(!$.isFunction(o.duration)) {
 				return {
-					x: o.duration.x || o.duration,
-					y: o.duration.y || o.duration
+					x: o.duration.x || o.duration || 1,
+					y: o.duration.y || o.duration || 1
 				};
 			} else {
 				var result = o.duration.call(t, o, targetDistance);
 				return {
-					x: Math.abs(result.x || result),
-					y: Math.abs(result.y || result)
+					x: Math.abs(result.x || result || 1),
+					y: Math.abs(result.y || result || 1)
 				};
 			}
 		},
