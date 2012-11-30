@@ -239,12 +239,14 @@
 					
 					// update currentPosition state
 					currentPosition = easingCurPosition;
-					isMoving = true;
 					
 					// Start Callback
 					if (!isMoving && $.isFunction(o.start)) {
 						o.start.call(t, currentAnimationTime, currentPosition);
 					}
+					
+					// Assure moving flag is on
+					isMoving = true;
 					
 					// if we still have time left on the animation
 					if (currentAnimationTime < currentAnimationDuration.x || currentAnimationTime < currentAnimationDuration.y) {
