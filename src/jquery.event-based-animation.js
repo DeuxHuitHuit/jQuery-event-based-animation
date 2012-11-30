@@ -239,7 +239,7 @@
 					
 					// Start Callback
 					if (!isMoving && $.isFunction(o.start)) {
-						o.start.call(t);
+						o.start.call(t, currentAnimationTime, currentPosition);
 					}
 					isMoving = true;
 					
@@ -263,7 +263,7 @@
 					
 					// End Callback
 					if (timer === null && $.isFunction(o.complete)) {
-						o.complete.call(t);
+						o.complete.call(t, currentAnimationTime, currentPosition);
 					}
 				} 
 			} else {
@@ -295,6 +295,10 @@
 		// Add the new strategy if needed
 		if ($.isFunction(o.strategy)) {
 			_eventStrategies[o.event] = o.strategy;
+		}
+		// if stragety is a string, try code resuse
+		else if ($.type(o.strategy) == 'string') {
+			_eventStrategies[o.event] = _eventStrategies[o.strategy];
 		}
 		
 		// hook up on event
