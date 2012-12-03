@@ -73,7 +73,7 @@
 					w.webkitRequestAnimationFrame || w.msRequestAnimationFrame ||
 					w.oRequestAnimationFrame || w.setTimeout;
 		
-			return frm(fx, delay);
+			return frm(fx, frm === w.setTimeout ? delay : o.container.get(0));
 		},
 		
 		_clearTimeout = function (timeout) {
@@ -140,7 +140,7 @@
 		
 		//Start a new timer
 		startTimer = function () {
-			if(!_checkStop(0)) {
+			if(!_checkStop(o)) {
 				timer = _setTimeout(_nextFrame, o.tick);
 			} else {
 				_clearTimeout(timer);
@@ -165,6 +165,18 @@
 			}
 		},
 		
+		// parses the startValue options
+		_getStartValues = function (o) {
+			var startValues = null;
+			if ($.isFunction(o.startValues)) {
+				startValues = o.startValues(o);
+			}
+			if (!startValues) {
+				startValues = currentPosition;
+			}
+			return startValues;
+		},
+		
 		// allow to calculate the first easing parameter
 		getLegacyEasingValue = function (currentAnimationTime) {
 			return {
@@ -176,7 +188,7 @@
 		//Allow to stop the animation
 		_checkStop = function (o) {
 			if (!$.isFunction(o.stop)) {
-				return !!o.stop;
+				return false;
 			}
 			return o.stop(o);
 		},
@@ -184,7 +196,7 @@
 		//Called at every tick
 		_nextFrame = function () {
 			
-			if(!_checkStop(0)) {
+			if(!_checkStop(o)) {
 				
 				// save travel distance needed
 				targetDistance.x = targetPosition.x - currentPosition.x;
@@ -200,8 +212,10 @@
 						currentAnimationDuration = getDuration(o, targetDistance);
 						
 						//Save the start point of the animation
-						currentStartAnimationPosition.x = currentPosition.x;
-						currentStartAnimationPosition.y = currentPosition.y;
+						var startValues = _getStartValues(o);
+						// copy values, not pointer
+						currentStartAnimationPosition.x = startValues.x;
+						currentStartAnimationPosition.y = startValues.y;
 						
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
 						// This acts as the new animation start
@@ -287,6 +301,7 @@
 			start: null, // A callback function called when the animation begins.
 			easing: null, // A easing function to use. $.easing.def or linear if omitted.
 			strategy: null, // A strategy function for your custom event.
+			startValues: null, // A function that permits override of the stating values
 			debug: false // set to true to get extra data in the console.
 		}, options);
 		
@@ -298,7 +313,7 @@
 		if ($.isFunction(o.strategy)) {
 			_eventStrategies[o.event] = o.strategy;
 		}
-		// if stragety is a string, try code resuse
+		// if strategy is a string, try code resuse
 		else if ($.type(o.strategy) == 'string') {
 			_eventStrategies[o.event] = _eventStrategies[o.strategy];
 		}
@@ -307,7 +322,7 @@
 		o.container.on(o.event, _handleEvent);
 		
 		// start timer
-		startTimer();
+		//startTimer();
 		
 	}; // end $.fn.extend
 })(jQuery);
