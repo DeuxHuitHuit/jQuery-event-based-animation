@@ -214,8 +214,10 @@
 						//Save the start point of the animation
 						var startValues = _getStartValues(o);
 						// copy values, not pointer
-						currentStartAnimationPosition.x = startValues.x;
-						currentStartAnimationPosition.y = startValues.y;
+						//currentStartAnimationPosition.x = startValues.x;
+						//currentStartAnimationPosition.y = startValues.y;
+						
+						currentStartAnimationPosition = startValues;
 						
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
 						// This acts as the new animation start
