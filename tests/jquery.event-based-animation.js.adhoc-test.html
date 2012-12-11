@@ -39,6 +39,10 @@
 			height: 50px;
 			background-color: yellow;
 		}
+		
+		#anim-scroll .anim {
+			margin: 50px;
+		}
   	</style>
 	
 	<script>
@@ -136,7 +140,8 @@
 			aClick.eventAnimate({
 				event: 'click',
 				debug: true,
-				duration: 1000,
+				//duration: 1000,
+				durationRatio: 3,
 				step: function (time, position) {
 					this.find('.anim').css({
 						left: position.x + 'px',

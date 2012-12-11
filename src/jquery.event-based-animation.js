@@ -150,17 +150,17 @@
 		},
 	
 		// parses the duration options
-		getDuration = function(o, targetDistance) {
-			if(!$.isFunction(o.duration)) {
+		_getDuration = function(o, targetDistance, startValues, targetValues) {
+			if (!$.isFunction(o.duration)) {
 				return {
-					x: o.duration.x || o.duration || 1,
-					y: o.duration.y || o.duration || 1
+					x: (o.duration.x || o.duration || Math.abs(targetDistance.x)) * o.durationRatio,
+					y: (o.duration.y || o.duration || Math.abs(targetDistance.y)) * o.durationRatio
 				};
 			} else {
 				var result = o.duration.call(t, o, targetDistance);
 				return {
-					x: Math.abs(result.x || result || 1),
-					y: Math.abs(result.y || result || 1)
+					x: Math.abs(result.x || result || targetDistance.x) * o.durationRatio,
+					y: Math.abs(result.y || result || targetDistance.y) * o.durationRatio
 				};
 			}
 		},
@@ -207,16 +207,18 @@
 					
 					// if the value changed since lass pass
 					if (eventTimeStamp > lastAnimatedTimeStamp) {
-						
-						// Update current duration
-						currentAnimationDuration = getDuration(o, targetDistance);
-						
+					
 						//Save the start point of the animation
 						var startValues = _getStartValues(o);
-						// copy values, not pointer
-						//currentStartAnimationPosition.x = startValues.x;
-						//currentStartAnimationPosition.y = startValues.y;
 						
+						// update target distances
+						targetDistance.x = targetPosition.x - startValues.x;
+						targetDistance.y = targetPosition.y - startValues.y;
+						
+						// Update current duration
+						currentAnimationDuration = _getDuration(o, targetDistance, startValues, targetPosition);
+						
+						// set start as current
 						currentStartAnimationPosition = startValues;
 						
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
@@ -245,7 +247,15 @@
 					
 					if (!!o.debug && !!window.console) {
 						console.log(lastAnimatedTimeStamp +
-								' Target ' + targetPosition.y + 
+								' Target X ' + parseInt(targetPosition.x,10) + 
+								' - Start ' + parseInt(currentStartAnimationPosition.x,10) + 
+								' - Linear ' + parseInt(linearPosition.x,10) + 
+								' - Eased ' + parseInt(easingCurPosition.x,10) + 
+								' - Time ' + Math.min(currentAnimationTime, currentAnimationDuration.x) + 
+								' - Duration ' + currentAnimationDuration.x);
+						
+						console.log(lastAnimatedTimeStamp +
+								' Target Y ' + parseInt(targetPosition.y,10) + 
 								' - Start ' + parseInt(currentStartAnimationPosition.y,10) + 
 								' - Linear ' + parseInt(linearPosition.y,10) + 
 								' - Eased ' + parseInt(easingCurPosition.y,10) + 
@@ -265,7 +275,8 @@
 					isMoving = true;
 					
 					// if we still have time left on the animation
-					if (currentAnimationTime < currentAnimationDuration.x || currentAnimationTime < currentAnimationDuration.y) {
+					if (currentAnimationTime < currentAnimationDuration.x || 
+						currentAnimationTime < currentAnimationDuration.y) {
 						// queue next frame
 						startTimer();
 					} else {
@@ -280,8 +291,12 @@
 					}
 					
 					// End Callback
-					if (timer === null && $.isFunction(o.complete)) {
-						o.complete.call(t, currentAnimationTime, currentPosition);
+					if (timer === null) {
+						if ($.isFunction(o.complete)) {
+							o.complete.call(t, currentAnimationTime, currentPosition);
+						}
+						// reset if we have to
+						currentPosition = _getStartValues(o);
 					}
 				} 
 			} else {
@@ -297,6 +312,7 @@
 			tick: 16, // Default timeout when requestAnimationFrame is not available. In ms.
 			event: 'scroll', // The event to listen to
 			duration: 0, // Both axis animation duration. Numeric, object (x:1,y:1} or function
+			durationRatio: 1, // Duration modifier. Particularly usefull when duration depends on distance
 			stop: null, // A stop function to stop the animation. Your logic, your rules.
 			step: null, // A function to call at each step of the animation.
 			complete: null, // A callback function called when the animation ends.
