@@ -131,7 +131,11 @@
 				eventTimeStamp = now()-1; // make it in the pass
 				
 				// Start the animation right now
-				_nextFrame();
+				if (!!o.delayStart) {
+					startTimer();
+				} else {
+					_nextFrame(); 
+				}
 				
 			} else if (!!window.console) {
 				console.err('No strategy found for event "' + o.event + '"');
@@ -140,7 +144,7 @@
 		
 		//Start a new timer
 		startTimer = function () {
-			if(!_checkStop(o)) {
+			if (!_checkStop(o)) {
 				timer = _setTimeout(_nextFrame, o.tick);
 			} else {
 				_clearTimeout(timer);
@@ -311,6 +315,7 @@
 			container: null, // The DOMElement where to listen the event. Target if omitted.
 			tick: 16, // Default timeout when requestAnimationFrame is not available. In ms.
 			event: 'scroll', // The event to listen to
+			delayStart: true, // Make the event schedule next frame instead of calling it
 			duration: 0, // Both axis animation duration. Numeric, object (x:1,y:1} or function
 			durationRatio: 1, // Duration modifier. Particularly usefull when duration depends on distance
 			stop: null, // A stop function to stop the animation. Your logic, your rules.
