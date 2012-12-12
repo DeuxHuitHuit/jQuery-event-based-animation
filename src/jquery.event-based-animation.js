@@ -127,14 +127,18 @@
 				// Call the strategy 
 				strategy.call(t, e, o, targetPosition);
 				
-				// Update the event time
-				eventTimeStamp = now()-1; // make it in the pass
-				
-				// Start the animation right now
-				if (!!o.delayStart) {
-					startTimer();
-				} else {
-					_nextFrame(); 
+				if (!isMoving || !!o.restartOnEvent) {
+					// Update the event time
+					eventTimeStamp = now()-1; // make it in the past
+					
+					// Only schedule for frame
+					if (!!o.delayStart) {
+						startTimer();
+					}
+					// Start the animation right now
+					else {
+						_nextFrame(); 
+					}
 				}
 				
 			} else if (!!window.console) {
@@ -209,7 +213,9 @@
 				// animation : Do we have something to travel
 				if (targetDistance.x !== 0 || targetDistance.y !== 0) {
 					
-					// if the value changed since lass pass
+					// if the value changed since lass pass,
+					// i.e. an event occur between two frames
+					// or before the current one
 					if (eventTimeStamp > lastAnimatedTimeStamp) {
 					
 						//Save the start point of the animation
@@ -227,7 +233,9 @@
 						
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
 						// This acts as the new animation start
-						lastAnimatedTimeStamp = now();
+						if (!isMoving || !!o.restartOnEvent) {
+							lastAnimatedTimeStamp = now();
+						}
 					} // if scrolled
 					
 					//Begin Var
@@ -305,7 +313,9 @@
 						// reset if we have to
 						currentPosition = _getStartValues(o);
 					}
-				} 
+				} else {
+					// animation won't run
+				}
 			} else {
 				// we stop, no timer are needed
 				timer = null;
@@ -318,9 +328,10 @@
 			container: null, // The DOMElement where to listen the event. Target if omitted.
 			tick: 16, // Default timeout when requestAnimationFrame is not available. In ms.
 			event: 'scroll', // The event to listen to
-			delayStart: true, // Make the event schedule next frame instead of calling it
+			delayStart: false, // Make the event schedule next frame instead of calling it
 			duration: 0, // Both axis animation duration. Numeric, object (x:1,y:1} or function
 			durationRatio: 1, // Duration modifier. Particularly usefull when duration depends on distance
+			restartOnEvent: false, // creates an absolute start time instead of relative to the last event
 			stop: null, // A stop function to stop the animation. Your logic, your rules.
 			step: null, // A function to call at each step of the animation.
 			complete: null, // A callback function called when the animation ends.
