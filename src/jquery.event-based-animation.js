@@ -249,22 +249,25 @@
 					
 					// end var
 					
-					if (!!o.debug && !!window.console) {
-						console.log(lastAnimatedTimeStamp +
-								' Target X ' + parseInt(targetPosition.x,10) + 
-								' - Start ' + parseInt(currentStartAnimationPosition.x,10) + 
-								' - Linear ' + parseInt(linearPosition.x,10) + 
-								' - Eased ' + parseInt(easingCurPosition.x,10) + 
-								' - Time ' + Math.min(currentAnimationTime, currentAnimationDuration.x) + 
-								' - Duration ' + currentAnimationDuration.x);
-						
-						console.log(lastAnimatedTimeStamp +
-								' Target Y ' + parseInt(targetPosition.y,10) + 
-								' - Start ' + parseInt(currentStartAnimationPosition.y,10) + 
-								' - Linear ' + parseInt(linearPosition.y,10) + 
-								' - Eased ' + parseInt(easingCurPosition.y,10) + 
-								' - Time ' + Math.min(currentAnimationTime, currentAnimationDuration.y) + 
-								' - Duration ' + currentAnimationDuration.y);
+					if (!!window.console && !!o.debug) {
+						if (o.debug === true || o.debug.x === true) {
+							console.log(lastAnimatedTimeStamp +
+									' Target X ' + parseInt(targetPosition.x,10) + 
+									' - Start ' + parseInt(currentStartAnimationPosition.x,10) + 
+									' - Linear ' + parseInt(linearPosition.x,10) + 
+									' - Eased ' + parseInt(easingCurPosition.x,10) + 
+									' - Time ' + Math.min(currentAnimationTime, currentAnimationDuration.x) + 
+									' - Duration ' + currentAnimationDuration.x);
+						}
+						if (o.debug === true || o.debug.y === true) {
+							console.log(lastAnimatedTimeStamp +
+									' Target Y ' + parseInt(targetPosition.y,10) + 
+									' - Start ' + parseInt(currentStartAnimationPosition.y,10) + 
+									' - Linear ' + parseInt(linearPosition.y,10) + 
+									' - Eased ' + parseInt(easingCurPosition.y,10) + 
+									' - Time ' + Math.min(currentAnimationTime, currentAnimationDuration.y) + 
+									' - Duration ' + currentAnimationDuration.y);
+						}
 					}
 					
 					// update currentPosition state
@@ -325,7 +328,7 @@
 			easing: null, // A easing function to use. $.easing.def or linear if omitted.
 			strategy: null, // A strategy function for your custom event.
 			startValues: null, // A function that permits override of the stating values
-			debug: false // set to true to get extra data in the console.
+			debug: false // set to true to get extra data in the console. Can be set per axis {x:false, y:true}
 		}, options);
 		
 		// assure container
