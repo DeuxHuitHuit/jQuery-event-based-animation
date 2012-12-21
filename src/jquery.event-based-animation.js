@@ -58,7 +58,8 @@
 		//Save the distance between current position and the target (Refreshed at every tick)
 		targetDistance = {
 			x: 0,
-			y: 0
+			y: 0,
+			force: false
 		},
 
 		//Save the current ghost position (Refreshed when tick apply animation)
@@ -211,7 +212,7 @@
 				targetDistance.y = targetPosition.y - currentPosition.y;
 				
 				// animation : Do we have something to travel
-				if (targetDistance.x !== 0 || targetDistance.y !== 0) {
+				if (targetDistance.x !== 0 || targetDistance.y !== 0 || targetDistance.force === true) {
 					
 					// if the value changed since lass pass,
 					// i.e. an event occur between two frames
@@ -278,8 +279,10 @@
 						}
 					}
 					
-					// update currentPosition state
-					currentPosition = easingCurPosition;
+					if ($.isNumeric(easingCurPosition.x) && $.isNumeric(easingCurPosition.y)) {
+						// update currentPosition state
+						currentPosition = easingCurPosition;
+					}
 					
 					// Start Callback
 					if (!isMoving && $.isFunction(o.start)) {
@@ -313,6 +316,10 @@
 						// reset if we have to
 						currentPosition = _getStartValues(o);
 					}
+					
+					// force render flag
+					targetDistance.force = false;
+					
 				} else {
 					// animation won't run
 				}
