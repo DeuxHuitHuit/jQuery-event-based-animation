@@ -10,7 +10,7 @@ module.exports = function(grunt) {
 			banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
 			'<%= grunt.template.today("yyyy-mm-dd") %>\n' +
 			'<%= pkg.homepage ? "* " + pkg.homepage + "\n" : "" %>' +
-			'* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
+			'* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %> ONF/NFB;' +
 			' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */'
 		},
 		min: {
@@ -58,7 +58,26 @@ module.exports = function(grunt) {
 		server: {
 			port: 8080,
 			base: '.'
-		}
+		}/*,
+		less: {
+		  development: {
+			options: {
+			  paths: ["src"]
+			},
+			files: {
+			  '<%= pkg.name %>.min.css': "<%= pkg.name %>.less"
+			}
+		  },
+		  production: {
+			options: {
+			  paths: ["dist"],
+			  yuicompress: true
+			},
+			files: {
+			  '<%= pkg.name %>.css': "<%= pkg.name %>.less"
+			}
+		  }
+		}*/
 	});
 
 	// Default task.

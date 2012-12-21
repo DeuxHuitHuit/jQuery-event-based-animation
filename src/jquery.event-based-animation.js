@@ -361,5 +361,8 @@
 		// start timer
 		//startTimer();
 		
+		// always return jQuery object
+		return t;
+		
 	}; // end $.fn.extend
 })(jQuery);
