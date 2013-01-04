@@ -334,7 +334,7 @@
 		o = $.extend({
 			container: null, // The DOMElement where to listen the event. Target if omitted.
 			tick: 16, // Default timeout when requestAnimationFrame is not available. In ms.
-			event: 'scroll', // The event to listen to
+			event: 'scroll', // The event(s) to listen for changes
 			delayStart: false, // Make the event schedule next frame instead of calling it
 			duration: 0, // Both axis animation duration. Numeric, object (x:1,y:1} or function
 			durationRatio: 1, // Duration modifier. Particularly usefull when duration depends on distance
@@ -362,6 +362,11 @@
 			_eventStrategies[o.event] = _eventStrategies[o.strategy];
 		}
 		// if strategy is an object, add multiple events
+		else if ($.isPlainObject(o.strategy)) {
+			$.each(o.strategy, function _importStrategy(key, s) {
+				_eventStrategies[key] = s;
+			});
+		}
 		
 		// hook up on event
 		o.container.on(o.event, _handleEvent);
