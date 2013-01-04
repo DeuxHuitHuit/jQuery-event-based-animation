@@ -49,6 +49,33 @@
 			});
 		},
 		
+		// Quick validator
+		_validateEach = function (o, validator, operation) {
+			// Fix arguments
+			if ($.isFunction(operation)) {
+				var oldVal = validator;
+				validator = operation;
+				operation = oldVal;
+			} else if (operation !== '||') {
+				operation = '&&';
+			}
+			var 
+			isAnd = operation === '&&',
+			and = function (a,b) { return a && b; },
+			or = function (a,b) { return a && b; },
+			fx = isAnd ? and : or,
+			result = isAnd; // add true if and, false if or
+			
+			_forEach(o, function (index, key) {
+				result = fx(result, validator(key));
+				if ((isAnd && result) || (!isAnd && !result)) {
+					return false; // exit
+				}
+			});
+			
+			return result;
+		}
+		
 		// Last event triggered
 		eventTimeStamp = now(),
 		
@@ -244,8 +271,9 @@
 			if(!_checkStop(o)) {
 				
 				// save travel distance needed
-				targetDistance.x = targetPosition.x - currentPosition.x;
-				targetDistance.y = targetPosition.y - currentPosition.y;
+				_setEach(o, targetDistance, function (key) {
+					return targetPosition[key] - currentPosition[key];
+				});
 				
 				// animation : Do we have something to travel
 				if (targetDistance.x !== 0 || targetDistance.y !== 0) {
