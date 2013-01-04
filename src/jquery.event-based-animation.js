@@ -317,14 +317,17 @@
 						currentPosition = _getStartValues(o);
 					}
 					
-					// force render flag
-					targetDistance.force = false;
-					
-				} else {
+				} 
+				// no distance found
+				else {
 					// animation won't run
+					timer = null;
+					isMoving = false;
 				}
-			} else {
-				// we stop, no timer are needed
+			} 
+			// animation stopped
+			else {
+				// we stop, no timer is needed
 				timer = null;
 				isMoving = false;
 			}
