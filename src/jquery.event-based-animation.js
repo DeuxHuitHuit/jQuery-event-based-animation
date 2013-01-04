@@ -60,8 +60,8 @@
 		
 		_forEach(o, function _validateOne(key) {
 			result = fx(result, validator(key));
-			if ((isAnd && result) || (!isAnd && !result)) {
-				return false; // exit
+			if ((isAnd && !result) || (!isAnd && result)) {
+				return false; // early exit
 			}
 		});
 		
@@ -69,13 +69,13 @@
 	},
 	
 	// Raf...
-	_setTimeout = function (fx, delay) {
+	_setTimeout = function (fx, o) {
 		var w = window,
 			frm = w.requestAnimationFrame || w.mozRequestAnimationFrame ||  
 				w.webkitRequestAnimationFrame || w.msRequestAnimationFrame ||
 				w.oRequestAnimationFrame || w.setTimeout;
 	
-		return frm(fx, frm === w.setTimeout ? delay : o.container.get(0));
+		return frm(fx, frm === w.setTimeout ? o.tick : o.container.get(0));
 	},
 	
 	// cRaf...
@@ -208,7 +208,7 @@
 		// Start a new timer
 		startTimer = function () {
 			if (!_checkStop(o)) {
-				timer = _setTimeout(_nextFrame, o.tick);
+				timer = _setTimeout(_nextFrame, o);
 			} 
 			// animation stopped, so no timer is allowed
 			else {
