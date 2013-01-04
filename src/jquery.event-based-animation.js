@@ -206,11 +206,12 @@
 		},
 		
 		// Calculate the first "legacy" easing parameter
-		getLegacyEasingValue = function (currentAnimationTime) {
-			return {
-				x: currentStartAnimationPosition.x + (Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration.x)) * (targetPosition.x-currentStartAnimationPosition.x)),
-				y: currentStartAnimationPosition.y + (Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration.y)) * (targetPosition.y-currentStartAnimationPosition.y))
-			};
+		_getLegacyEasingValue = function (o, currentAnimationTime) {
+			var e = {};
+			_setEach(o, e, function (key) {
+				return currentStartAnimationPosition[key] + (Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration[key])) * (targetPosition[key] - currentStartAnimationPosition[key]));
+			});
+			return e;
 		},
 		
 		_debugOutput = function (o, linearPosition, easingCurPosition, currentAnimationTime) {
@@ -281,7 +282,7 @@
 					currentAnimationTime = now() - lastAnimatedTimeStamp,
 					
 					// Linear/swing algorigthm
-					linearPosition = getLegacyEasingValue(currentAnimationTime),
+					linearPosition = _getLegacyEasingValue(o, currentAnimationTime),
 					easingFx = o.easing || $.easing.def || 'linear',
 					easingCurPosition = {
 						// We documented the parameter names and logic, since there is an error on
