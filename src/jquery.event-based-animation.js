@@ -273,6 +273,11 @@
 			return targetDistance[key] !== 0; 
 		},
 		
+		// Time left
+		_hasTimeLeft = function (key) {
+			return currentAnimationTime < currentAnimationDuration[key];
+		},
+		
 		// Called at every tick
 		_nextFrame = function () {
 			
@@ -295,8 +300,9 @@
 						var startValues = _getStartValues(o);
 						
 						// Update target distances
-						targetDistance.x = targetPosition.x - startValues.x;
-						targetDistance.y = targetPosition.y - startValues.y;
+						_setEach(o, targetDistance, function (key) {
+							return targetPosition[key] - startValues[key];
+						});
 						
 						// Update current duration
 						currentAnimationDuration = _getDuration(o, targetDistance, startValues, targetPosition);
@@ -320,20 +326,35 @@
 					// Linear/swing algorigthm
 					linearPosition = _getLegacyEasingValue(o, currentAnimationTime),
 					easingFx = o.easing || $.easing.def || 'linear',
-					easingCurPosition = {
-						// We documented the parameter names and logic, since there is an error on
-						// the main doc: http://gsgd.co.uk/sandbox/jquery/easing/. end_value is actually a diff.
-						//                    old_fx,           current_time,                                               start_value,                     end_value-start_value,                             duration
-						x: $.easing[easingFx](linearPosition.x, Math.min(currentAnimationTime, currentAnimationDuration.x), currentStartAnimationPosition.x, targetPosition.x-currentStartAnimationPosition.x, currentAnimationDuration.x),
-						y: $.easing[easingFx](linearPosition.y, Math.min(currentAnimationTime, currentAnimationDuration.y), currentStartAnimationPosition.y, targetPosition.y-currentStartAnimationPosition.y, currentAnimationDuration.y)
+					easingCurPosition = {},
+					easingIsNumeric = function (key) {
+						return $.isNumeric(easingCurPosition[key]);
 					};
-					
 					// end var
+					
+					// calculate easing
+					_setEach(o, easingCurPosition, function (key) {
+						// We documented the parameter names and logic, since there is an error on
+						// the main doc: http://gsgd.co.uk/sandbox/jquery/easing/.
+						// `end_value` is actually a diff (delta).
+						return $.easing[easingFx](
+									// old_fx
+									linearPosition[key], 
+									// current_time
+									Math.min(currentAnimationTime, currentAnimationDuration[key]),
+									// start_value
+									currentStartAnimationPosition[key],
+									// end_value-start_value (diff)
+									targetPosition[key]-currentStartAnimationPosition[key],
+									// duration
+									currentAnimationDuration[key]
+								);
+					})
 					
 					// DEBUG
 					_debugOutput(o, linearPosition, easingCurPosition, currentAnimationTime);
 					
-					if ($.isNumeric(easingCurPosition.x) && $.isNumeric(easingCurPosition.y)) {
+					if (_validateEach(o, easingIsNumeric)) {
 						// update currentPosition state
 						currentPosition = easingCurPosition;
 					}
@@ -347,8 +368,7 @@
 					isMoving = true;
 					
 					// if we still have time left on the animation
-					if (currentAnimationTime < currentAnimationDuration.x || 
-						currentAnimationTime < currentAnimationDuration.y) {
+					if (_validateEach(o, _hasTimeLeft, '||')) {
 						// queue next frame
 						startTimer();
 					} else {
