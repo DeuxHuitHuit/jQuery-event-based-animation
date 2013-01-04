@@ -130,9 +130,12 @@
 				// Call the strategy 
 				strategy.call(t, e, o, targetPosition);
 				
-				if (!isMoving || !!o.restartOnEvent) {
+				if (!!o.restartOnEvent) {
 					// Update the event time
 					eventTimeStamp = now()-1; // make it in the past
+				}
+				
+				if (!isMoving) {
 					
 					// Only schedule for frame
 					if (!!o.delayStart) {
