@@ -156,7 +156,9 @@
 		startTimer = function () {
 			if (!_checkStop(o)) {
 				timer = _setTimeout(_nextFrame, o.tick);
-			} else {
+			} 
+			// animation stopped, so no timer is allowed
+			else {
 				_clearTimeout(timer);
 				timer = null;
 			}
@@ -224,17 +226,17 @@
 					// or before the current one
 					if (eventTimeStamp > lastAnimatedTimeStamp) {
 					
-						//Save the start point of the animation
+						// Save the start point of the animation
 						var startValues = _getStartValues(o);
 						
-						// update target distances
+						// Update target distances
 						targetDistance.x = targetPosition.x - startValues.x;
 						targetDistance.y = targetPosition.y - startValues.y;
 						
 						// Update current duration
 						currentAnimationDuration = _getDuration(o, targetDistance, startValues, targetPosition);
 						
-						// set start as current
+						// Set start as current
 						currentStartAnimationPosition = startValues;
 						
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
@@ -244,17 +246,17 @@
 						}
 					} // if scrolled
 					
-					//Begin Var
+					// Begin Var
 					var 
 					
-					// current animation time (where are we rith now)
+					// Current animation time (where are we rith now)
 					currentAnimationTime = now() - lastAnimatedTimeStamp,
 					
 					// Linear/swing algorigthm
 					linearPosition = getLegacyEasingValue(currentAnimationTime),
 					easingFx = o.easing || $.easing.def || 'linear',
 					easingCurPosition = {
-						// we documented the parameter names and logic, since there is an error on
+						// We documented the parameter names and logic, since there is an error on
 						// the main doc: http://gsgd.co.uk/sandbox/jquery/easing/. end_value is actually a diff.
 						//                    old_fx,           current_time,                                               start_value,                     end_value-start_value,                             duration
 						x: $.easing[easingFx](linearPosition.x, Math.min(currentAnimationTime, currentAnimationDuration.x), currentStartAnimationPosition.x, targetPosition.x-currentStartAnimationPosition.x, currentAnimationDuration.x),
@@ -354,32 +356,31 @@
 			easing: null, // A easing function to use. $.easing.def or linear if omitted.
 			strategy: null, // A strategy function for your custom event.
 			startValues: null, // A function that permits override of the stating values
-			debug: false // set to true to get extra data in the console. Can be set per axis {x:false, y:true}
+			debug: false // Set to true to get extra data in the console. Can be set per axis {x:false, y:true}
 		}, options);
 		
-		// assure container
-		// if not container is set, use the target
+		// If not container is set, use the target
 		o.container = $(o.container || t);
 		
 		// Add the new strategy if needed
 		if ($.isFunction(o.strategy)) {
 			_eventStrategies[o.event] = o.strategy;
 		}
-		// if strategy is a string, try code re-use
+		// If strategy is a string, try code re-use
 		else if ($.type(o.strategy) == 'string') {
 			_eventStrategies[o.event] = _eventStrategies[o.strategy];
 		}
-		// if strategy is an object, add multiple events
+		// If strategy is an object, add multiple events
 		else if ($.isPlainObject(o.strategy)) {
 			$.each(o.strategy, function _importStrategy(key, s) {
 				_eventStrategies[key] = s;
 			});
 		}
 		
-		// hook up on event
+		// Hook up on event
 		o.container.on(o.event, _handleEvent);
 		
-		// always return jQuery object
+		// Always return jQuery object
 		return t;
 		
 	}; // end $.fn.extend
