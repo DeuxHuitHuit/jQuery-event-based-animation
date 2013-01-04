@@ -37,12 +37,14 @@
 		
 		// Quick iterator
 		_forEach = function (o, iterator) {
-			$.each(o.properties, iterator);
+			$.each(o.properties, function _each(index, key) {
+				iterator(key);
+			});
 		},
 		
 		// Quick setter
 		_setEach = function (o, object, values) {
-			_forEach(o, function (index, key) {
+			_forEach(o, function (key) {
 				object[key] = $.isFunction(values) ? 
 								values(key) : 
 								($.isArray(values) ? values[key] : values);
@@ -66,7 +68,7 @@
 			fx = isAnd ? and : or,
 			result = isAnd; // add true if and, false if or
 			
-			_forEach(o, function (index, key) {
+			_forEach(o, function (key) {
 				result = fx(result, validator(key));
 				if ((isAnd && result) || (!isAnd && !result)) {
 					return false; // exit
@@ -243,7 +245,7 @@
 		
 		_debugOutput = function (o, linearPosition, easingCurPosition, currentAnimationTime) {
 			if (!!window.console && console.log && !!o.debug) {
-				_forEach(o, function (index, key) {
+				_forEach(o, function (key) {
 					if (o.debug === true || o.debug[key] === true) {
 						console.log(lastAnimatedTimeStamp +
 								' Target ' + key + ' ' + parseInt(targetPosition[key],10) + 
