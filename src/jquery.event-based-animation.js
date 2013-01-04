@@ -18,7 +18,7 @@
 		// Window object
 		win = $(window),
 		
-		// Quik timestamp
+		// Quick timestamp
 		now = function () {
 			return (new Date()).getTime();
 		},
@@ -31,7 +31,7 @@
 			return n/d;
 		},
 		
-		// Last event trigered
+		// Last event triggered
 		eventTimeStamp = now(),
 		
 		// Last animation frame
@@ -186,7 +186,7 @@
 			return startValues;
 		},
 		
-		// allow to calculate the first easing parameter
+		// Calculate the first "legacy" easing parameter
 		getLegacyEasingValue = function (currentAnimationTime) {
 			return {
 				x: currentStartAnimationPosition.x + (Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration.x)) * (targetPosition.x-currentStartAnimationPosition.x)),
@@ -194,7 +194,7 @@
 			};
 		},
 		
-		//Allow to stop the animation
+		// Allow to stop the animation
 		_checkStop = function (o) {
 			if (!$.isFunction(o.stop)) {
 				return false;
@@ -202,7 +202,7 @@
 			return o.stop(o);
 		},
 		
-		//Called at every tick
+		// Called at every tick
 		_nextFrame = function () {
 			
 			if(!_checkStop(o)) {
@@ -212,7 +212,7 @@
 				targetDistance.y = targetPosition.y - currentPosition.y;
 				
 				// animation : Do we have something to travel
-				if (targetDistance.x !== 0 || targetDistance.y !== 0 || targetDistance.force === true) {
+				if (targetDistance.x !== 0 || targetDistance.y !== 0) {
 					
 					// if the value changed since lass pass,
 					// i.e. an event occur between two frames
@@ -357,16 +357,14 @@
 		if ($.isFunction(o.strategy)) {
 			_eventStrategies[o.event] = o.strategy;
 		}
-		// if strategy is a string, try code resuse
+		// if strategy is a string, try code re-use
 		else if ($.type(o.strategy) == 'string') {
 			_eventStrategies[o.event] = _eventStrategies[o.strategy];
 		}
+		// if strategy is an object, add multiple events
 		
 		// hook up on event
 		o.container.on(o.event, _handleEvent);
-		
-		// start timer
-		//startTimer();
 		
 		// always return jQuery object
 		return t;
