@@ -29,22 +29,32 @@
 		
 		// Safe division
 		sdiv = function (n, d) {
+			// This function will be compiled as a one liner
+			// So we can leave this code, which is way more readable then
+			// return (!n || !d) ? 0 : n/d;
 			if (!n || !d) {
 				return 0;
 			}
 			return n/d;
 		},
 		
+		// Console shim
+		_error = function (msg) {
+			if (!!window.console && !!console.err) {
+				console.err('[eventAnimate] ' + msg);
+			}
+		},
+		
 		// Quick iterator
 		_forEach = function (o, iterator) {
 			$.each(o.properties, function _each(index, key) {
-				iterator(key);
+				return iterator(key);
 			});
 		},
 		
 		// Quick setter
 		_setEach = function (o, object, values) {
-			_forEach(o, function (key) {
+			_forEach(o, function _setOne(key) {
 				object[key] = $.isFunction(values) ? 
 								values(key) : 
 								($.isArray(values) ? values[key] : values);
@@ -60,7 +70,7 @@
 			fx = isAnd ? _and : _or,
 			result = isAnd; // add true if and, false if or
 			
-			_forEach(o, function (key) {
+			_forEach(o, function _validateOne(key) {
 				result = fx(result, validator(key));
 				if ((isAnd && result) || (!isAnd && !result)) {
 					return false; // exit
@@ -99,6 +109,7 @@
 			_setEach(o, currentPosition, 0);
 		},
 		
+		// Raf...
 		_setTimeout = function (fx, delay) {
 			var w = window,
 				frm = w.requestAnimationFrame || w.mozRequestAnimationFrame ||  
@@ -108,6 +119,7 @@
 			return frm(fx, frm === w.setTimeout ? delay : o.container.get(0));
 		},
 		
+		// cRaf...
 		_clearTimeout = function (timeout) {
 			var w = window,
 				frm = w.cancelAnimationFrame || w.webkitCancelRequestAnimationFrame ||
@@ -180,8 +192,8 @@
 					}
 				}
 				
-			} else if (!!window.console) {
-				console.err('No strategy found for event "' + eventName + '"');
+			} else {
+				_error('No strategy found for event "' + eventName + '"');
 			}
 		},
 		
@@ -203,11 +215,11 @@
 			var r = {};
 			if ($.isFunction(o.duration)) {
 				var result = o.duration.call(t, o, targetDistance);
-				_setEach(o, r, function (key) {
+				_setEach(o, r, function _setCalledDuration(key) {
 					return Math.abs(result[key] || result || targetDistance[key]) * o.durationRatio;
 				});
 			} else {
-				_setEach(o, r, function (key) {
+				_setEach(o, r, function _setOneDirection(key) {
 					return Math.abs(o.duration[key] || o.duration || targetDistance[key]) * o.durationRatio;
 				});
 			}
@@ -229,15 +241,16 @@
 		// Calculate the first "legacy" easing parameter
 		_getLegacyEasingValue = function (o, currentAnimationTime) {
 			var e = {};
-			_setEach(o, e, function (key) {
+			_setEach(o, e, function _computeLegacyEasingValue(key) {
 				return currentStartAnimationPosition[key] + (Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration[key])) * (targetPosition[key] - currentStartAnimationPosition[key]));
 			});
 			return e;
 		},
 		
+		// Ouputs one line per property
 		_debugOutput = function (o, linearPosition, easingCurPosition, currentAnimationTime) {
 			if (!!window.console && console.log && !!o.debug) {
-				_forEach(o, function (key) {
+				_forEach(o, function _debugOutputOneProp(key) {
 					if (o.debug === true || o.debug[key] === true) {
 						console.log(lastAnimatedTimeStamp +
 								' Target ' + key + ' ' + parseInt(targetPosition[key],10) + 
@@ -270,7 +283,7 @@
 			if(!_checkStop(o)) {
 				
 				// save travel distance needed
-				_setEach(o, targetDistance, function (key) {
+				_setEach(o, targetDistance, function _setTargetDistance(key) {
 					return targetPosition[key] - currentPosition[key];
 				});
 				
@@ -286,7 +299,7 @@
 						var startValues = _getStartValues(o);
 						
 						// Update target distances
-						_setEach(o, targetDistance, function (key) {
+						_setEach(o, targetDistance, function _updateTargetDistance(key) {
 							return targetPosition[key] - startValues[key];
 						});
 						
@@ -321,7 +334,7 @@
 					// end var
 					
 					// calculate easing
-					_setEach(o, easingCurPosition, function (key) {
+					_setEach(o, easingCurPosition, function _setEasing(key) {
 						// We documented the parameter names and logic, since there is an error on
 						// the main doc: http://gsgd.co.uk/sandbox/jquery/easing/.
 						// `end_value` is actually a diff (delta).
@@ -415,8 +428,13 @@
 			debug: false // Set to true to get extra data in the console. Can be set per axis {x:false, y:true}
 		}, options);
 		
-		// If not container is set, use the target
+		// If no container is set, use the target
 		o.container = $(o.container || t);
+		if (!o.container.length) {
+			// No container found, exit
+			_error('No container found');
+			return t;
+		}
 		
 		// Add the new strategy if needed
 		if ($.isFunction(o.strategy)) {
@@ -445,6 +463,7 @@
 		// If no animatable properties have been found
 		if (!$.isArray(o.properties) || o.properties.length < 1) {
 			// Cannot continue
+			_error('No animatable properties have been set.');
 			return t;
 		}
 		
