@@ -2,8 +2,9 @@
 
 #### Version 1.1
 
-jQuery plugin that offers a different way to do animations. 
-End (or target) values can be changed during the animation, based on multiples events.
+jQuery plugin that offers a different way to do animations. jQuery animations are time based,
+i.e. total duration us know from the start. This project aims to break thir barrier by allowing
+you to change end (or target) values during the animation, based on multiples events.
 
 The two main goals of this project is to avoid having the same *raf* loop copied all over
 the place and to provide a flexible approach to event based animation yet maintaining a
