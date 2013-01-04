@@ -429,7 +429,11 @@
 		// If strategy is an object, add multiple events
 		else if ($.isPlainObject(o.strategy)) {
 			$.each(o.strategy, function _importStrategy(key, s) {
-				_eventStrategies[key] = s;
+				if ($.isString(s)) {
+					_eventStrategies[key] = _eventStrategies[s];
+				} else {
+					_eventStrategies[key] = s;
+				}
 			});
 		}
 		
