@@ -8,6 +8,12 @@
 	
 	"use strict";
 	
+	if (!$.isFunction($.isString)) {
+		$.isString = function (object) {
+			return $.type(object) === 'string';
+		};
+	}
+	
 	$.fn.eventAnimate = function (options) {
 		
 		var
@@ -345,6 +351,7 @@
 			container: null, // The DOMElement where to listen the event. Target if omitted.
 			tick: 16, // Default timeout when requestAnimationFrame is not available. In ms.
 			event: 'scroll', // The event(s) to listen for changes
+			properties: 'x y', // The properties that we are animating (array or string)
 			delayStart: false, // Make the event schedule next frame instead of calling it
 			duration: 0, // Both axis animation duration. Numeric, object (x:1,y:1} or function
 			durationRatio: 1, // Duration modifier. Particularly usefull when duration depends on distance
@@ -367,7 +374,7 @@
 			_eventStrategies[o.event] = o.strategy;
 		}
 		// If strategy is a string, try code re-use
-		else if ($.type(o.strategy) == 'string') {
+		else if ($.isString(o.strategy)) {
 			_eventStrategies[o.event] = _eventStrategies[o.strategy];
 		}
 		// If strategy is an object, add multiple events
@@ -375,6 +382,17 @@
 			$.each(o.strategy, function _importStrategy(key, s) {
 				_eventStrategies[key] = s;
 			});
+		}
+		
+		// Split into array if it is a string
+		if ($.isString(o.properties)) {
+			o.properties = o.properties.split(' ');
+		}
+		
+		// If no animatable properties have been found
+		if (!$.isArray(o.properties) || o.properties.length < 1) {
+			// Cannot continue
+			return t;
 		}
 		
 		// Hook up on event
