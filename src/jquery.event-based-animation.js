@@ -61,6 +61,7 @@
 			} else if (operation !== '||') {
 				operation = '&&';
 			}
+			
 			var 
 			isAnd = operation === '&&',
 			and = function (a,b) { return a && b; },
@@ -76,7 +77,7 @@
 			});
 			
 			return result;
-		}
+		},
 		
 		// Last event triggered
 		eventTimeStamp = now(),
