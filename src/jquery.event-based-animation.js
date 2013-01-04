@@ -52,12 +52,12 @@
 		},
 		
 		// Quick validator
+		_and = function (a,b) { return a && b; },
+		_or = function (a,b) { return a || b; },
 		_validateEach = function (o, validator, isOr) {
 			var 
 			isAnd = !isOr,
-			and = function (a,b) { return a && b; },
-			or = function (a,b) { return a || b; },
-			fx = isAnd ? and : or,
+			fx = isAnd ? _and : _or,
 			result = isAnd; // add true if and, false if or
 			
 			_forEach(o, function (key) {
