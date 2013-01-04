@@ -49,20 +49,20 @@
 			y: 0
 		},
 		
-		//Save the target position (updated by the event)
+		// Save the target position (updated by the event)
 		targetPosition = {
 			x: 0,
 			y: 0
 		},
 		
-		//Save the distance between current position and the target (Refreshed at every tick)
+		// Save the distance between current position and the target (Refreshed at every tick)
 		targetDistance = {
 			x: 0,
 			y: 0,
 			force: false
 		},
 
-		//Save the current ghost position (Refreshed when tick apply animation)
+		// Save the current ghost position (Refreshed when tick apply animation)
 		currentPosition = {
 			x: 0,
 			y: 0
@@ -122,7 +122,9 @@
 		
 		// Handle the container event
 		_handleEvent = function (e) {
-			var strategy = _eventStrategies[o.event];
+			var 
+			eventName = e.type || o.event,
+			strategy = _eventStrategies[eventName];
 			
 			if ($.isFunction(strategy)) {
 				// Call the strategy 
@@ -143,7 +145,7 @@
 				}
 				
 			} else if (!!window.console) {
-				console.err('No strategy found for event "' + o.event + '"');
+				console.err('No strategy found for event "' + eventName + '"');
 			}
 		},
 		
