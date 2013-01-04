@@ -43,7 +43,9 @@
 		// Quick setter
 		_setEach = function (o, object, values) {
 			_forEach(o, function (index, key) {
-				object[key] = $.isFunction(values) ? values(key) : (values[key] || values);
+				object[key] = $.isFunction(values) ? 
+								values(key) : 
+								($.isArray(values) ? values[key] : values);
 			});
 		},
 		
