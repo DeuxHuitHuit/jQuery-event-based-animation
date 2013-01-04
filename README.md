@@ -65,4 +65,4 @@ As always, feel free to fork and pull some love.
 ## License
 
 MIT Licensed. See LICENSE.txt    
-(c) <http://www.deuxhuithuit.com>
+(c) [Deux Huit Huit](http://www.deuxhuithuit.com/?ref=github)
