@@ -111,12 +111,12 @@
 		initScroll = function () {
 			aScroll.eventAnimate({
 				// event: scroll is the default
+				properties: 'y', // compute only 'y' property
 				debug: {y:true},
 				//duration: 500,
 				durationRatio: 1,
 				step: function (time, position) {
 					this.find('.anim').css({
-						left: position.x + 'px',
 						top: position.y + 'px'
 					});
 				}
