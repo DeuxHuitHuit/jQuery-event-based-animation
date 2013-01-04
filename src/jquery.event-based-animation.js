@@ -25,9 +25,7 @@
 		win = $(window),
 		
 		// Quick timestamp
-		now = function () {
-			return (new Date()).getTime();
-		},
+		now = $.now,
 		
 		// Safe division
 		sdiv = function (n, d) {
@@ -37,6 +35,18 @@
 			return n/d;
 		},
 		
+		// Quick iterator
+		_forEach = function (o, iterator) {
+			$.each(o.properties, iterator);
+		},
+		
+		// Quick setter
+		_setEach = function (o, object, values) {
+			_forEach(o, function (index, key) {
+				object[key] = $.isFunction(values) ? values(key) : (values[key] || values);
+			});
+		},
+		
 		// Last event triggered
 		eventTimeStamp = now(),
 		
@@ -44,34 +54,26 @@
 		lastAnimatedTimeStamp = eventTimeStamp,
 		
 		// Current running animation duration
-		currentAnimationDuration = {
-			x: 0,
-			y: 0
-		},
+		currentAnimationDuration = {},
 		
 		// Current animation start values
-		currentStartAnimationPosition = {
-			x: 0,
-			y: 0
-		},
+		currentStartAnimationPosition = {},
 		
 		// Save the target position (updated by the event)
-		targetPosition = {
-			x: 0,
-			y: 0
-		},
+		targetPosition = {},
 		
 		// Save the distance between current position and the target (Refreshed at every tick)
-		targetDistance = {
-			x: 0,
-			y: 0,
-			force: false
-		},
+		targetDistance = {},
 
 		// Save the current ghost position (Refreshed when tick apply animation)
-		currentPosition = {
-			x: 0,
-			y: 0
+		currentPosition = {},
+		
+		_initVariables = function (o) {
+			_setEach(o, currentAnimationDuration, 0);
+			_setEach(o, currentStartAnimationPosition, 0);
+			_setEach(o, targetPosition, 0);
+			_setEach(o, targetDistance, 0);
+			_setEach(o, currentPosition, 0);
 		},
 		
 		_setTimeout = function (fx, delay) {
@@ -394,6 +396,9 @@
 			// Cannot continue
 			return t;
 		}
+		
+		// Init "globals"
+		_initVariables(o);
 		
 		// Hook up on event
 		o.container.on(o.event, _handleEvent);
