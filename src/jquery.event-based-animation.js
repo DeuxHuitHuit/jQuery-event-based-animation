@@ -65,7 +65,7 @@
 			var 
 			isAnd = operation === '&&',
 			and = function (a,b) { return a && b; },
-			or = function (a,b) { return a && b; },
+			or = function (a,b) { return a || b; },
 			fx = isAnd ? and : or,
 			result = isAnd; // add true if and, false if or
 			
@@ -268,6 +268,11 @@
 			return o.stop(o);
 		},
 		
+		// Distance checking
+		_distanceIsNotZero = function (key) { 
+			return targetDistance[key] !== 0; 
+		},
+		
 		// Called at every tick
 		_nextFrame = function () {
 			
@@ -278,8 +283,8 @@
 					return targetPosition[key] - currentPosition[key];
 				});
 				
-				// animation : Do we have something to travel
-				if (targetDistance.x !== 0 || targetDistance.y !== 0) {
+				// Animation : Do we have something to travel?
+				if (_validateEach(o, '||', _distanceIsNotZero)) {
 					
 					// if the value changed since lass pass,
 					// i.e. an event occur between two frames
