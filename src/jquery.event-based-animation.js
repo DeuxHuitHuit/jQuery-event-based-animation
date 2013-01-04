@@ -477,55 +477,61 @@
 			// Set to true to get extra data in the console.
 			// Can be set per property, i.e. {x:false, y:true}
 			debug: false
-		}, options);
+		}, options),
 		
-		// If no container is set, use the target
-		o.container = $(o.container || t);
-		if (!o.container.length) {
-			// No container found, exit
-			_error('No container found');
+		_init = function (o) {
+		
+			// If no container is set, use the target
+			o.container = $(o.container || t);
+			if (!o.container.length) {
+				// No container found, exit
+				_error('No container found');
+				return t;
+			}
+			
+			// Add the new strategy if needed
+			if ($.isFunction(o.strategy)) {
+				_eventStrategies[o.event] = o.strategy;
+			}
+			// If strategy is a string, try code re-use
+			else if ($.isString(o.strategy)) {
+				_eventStrategies[o.event] = _eventStrategies[o.strategy];
+			}
+			// If strategy is an object, add multiple events
+			else if ($.isPlainObject(o.strategy)) {
+				$.each(o.strategy, function _importStrategy(key, s) {
+					if ($.isString(s)) {
+						_eventStrategies[key] = _eventStrategies[s];
+					} else {
+						_eventStrategies[key] = s;
+					}
+				});
+			}
+			
+			// Split into array if it is a string
+			if ($.isString(o.properties)) {
+				o.properties = o.properties.split(' ');
+			}
+			
+			// If no animate-able properties have been found
+			if (!$.isArray(o.properties) || o.properties.length < 1) {
+				// Cannot continue
+				_error('No animatable properties have been set.');
+				return t;
+			}
+			
+			// Init "globals"
+			_initVariables(o);
+			
+			// Hook up on event
+			o.container.on(o.event, _handleEvent);
+			
+			// Always return jQuery object
 			return t;
-		}
+		};
 		
-		// Add the new strategy if needed
-		if ($.isFunction(o.strategy)) {
-			_eventStrategies[o.event] = o.strategy;
-		}
-		// If strategy is a string, try code re-use
-		else if ($.isString(o.strategy)) {
-			_eventStrategies[o.event] = _eventStrategies[o.strategy];
-		}
-		// If strategy is an object, add multiple events
-		else if ($.isPlainObject(o.strategy)) {
-			$.each(o.strategy, function _importStrategy(key, s) {
-				if ($.isString(s)) {
-					_eventStrategies[key] = _eventStrategies[s];
-				} else {
-					_eventStrategies[key] = s;
-				}
-			});
-		}
-		
-		// Split into array if it is a string
-		if ($.isString(o.properties)) {
-			o.properties = o.properties.split(' ');
-		}
-		
-		// If no animate-able properties have been found
-		if (!$.isArray(o.properties) || o.properties.length < 1) {
-			// Cannot continue
-			_error('No animatable properties have been set.');
-			return t;
-		}
-		
-		// Init "globals"
-		_initVariables(o);
-		
-		// Hook up on event
-		o.container.on(o.event, _handleEvent);
-		
-		// Always return jQuery object
-		return t;
+		// Init and return
+		return _init(o);
 		
 	}; // end $.fn.extend
 })(jQuery);
