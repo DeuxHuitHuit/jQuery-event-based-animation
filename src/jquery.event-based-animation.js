@@ -103,6 +103,7 @@
 		
 		defaultOffset = {left:0,top:0},
 		
+		// Event Strategies implementation
 		_handleScroll = function (e, o, targetPosition) {
 			targetPosition.x = o.container.scrollLeft();
 			targetPosition.y = o.container.scrollTop();
@@ -121,7 +122,7 @@
 			targetPosition.y = touch.pageY - offset.top;
 		},
 		
-		// Event Strategies
+		// Defaults Event Strategies
 		_eventStrategies = {
 			scroll: _handleScroll,
 			click: _handleMouse,
@@ -140,11 +141,12 @@
 				// Call the strategy 
 				strategy.call(t, e, o, targetPosition);
 				
-				if (!!o.restartOnEvent) {
-					// Update the event time
+				// Update the event time
+				if (!isMoving || !!o.restartOnEvent) {
 					eventTimeStamp = now()-1; // make it in the past
 				}
 				
+				//  Schedule frame if not moving
 				if (!isMoving) {
 					
 					// Only schedule for frame
@@ -162,7 +164,7 @@
 			}
 		},
 		
-		//Start a new timer
+		// Start a new timer
 		startTimer = function () {
 			if (!_checkStop(o)) {
 				timer = _setTimeout(_nextFrame, o.tick);
@@ -175,20 +177,20 @@
 			return timer;
 		},
 	
-		// parses the duration options
+		// Parses the duration options
 		_getDuration = function(o, targetDistance, startValues, targetValues) {
-			if (!$.isFunction(o.duration)) {
-				return {
-					x: (o.duration.x || o.duration || Math.abs(targetDistance.x)) * o.durationRatio,
-					y: (o.duration.y || o.duration || Math.abs(targetDistance.y)) * o.durationRatio
-				};
-			} else {
+			var r = {};
+			if ($.isFunction(o.duration)) {
 				var result = o.duration.call(t, o, targetDistance);
-				return {
-					x: Math.abs(result.x || result || targetDistance.x) * o.durationRatio,
-					y: Math.abs(result.y || result || targetDistance.y) * o.durationRatio
-				};
+				_setEach(o, r, function (key) {
+					return Math.abs(result[key] || result || targetDistance[key]) * o.durationRatio;
+				});
+			} else {
+				_setEach(o, r, function (key) {
+					return Math.abs(o.duration[key] || o.duration || targetDistance[key]) * o.durationRatio;
+				});
 			}
+			return r;
 		},
 		
 		// parses the startValue options
@@ -209,6 +211,22 @@
 				x: currentStartAnimationPosition.x + (Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration.x)) * (targetPosition.x-currentStartAnimationPosition.x)),
 				y: currentStartAnimationPosition.y + (Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration.y)) * (targetPosition.y-currentStartAnimationPosition.y))
 			};
+		},
+		
+		_debugOutput = function (o, linearPosition, easingCurPosition, currentAnimationTime) {
+			if (!!window.console && console.log && !!o.debug) {
+				_forEach(o, function (index, key) {
+					if (o.debug === true || o.debug[key] === true) {
+						console.log(lastAnimatedTimeStamp +
+								' Target ' + key + ' ' + parseInt(targetPosition[key],10) + 
+								' - Start ' + parseInt(currentStartAnimationPosition[key],10) + 
+								' - Linear ' + parseInt(linearPosition[key],10) + 
+								' - Eased ' + parseInt(easingCurPosition[key],10) + 
+								' - Time ' + Math.min(currentAnimationTime, currentAnimationDuration[key]) + 
+								' - Duration ' + currentAnimationDuration[key]);
+					}
+				});
+			}
 		},
 		
 		// Allow to stop the animation
@@ -275,26 +293,8 @@
 					
 					// end var
 					
-					if (!!window.console && !!o.debug) {
-						if (o.debug === true || o.debug.x === true) {
-							console.log(lastAnimatedTimeStamp +
-									' Target X ' + parseInt(targetPosition.x,10) + 
-									' - Start ' + parseInt(currentStartAnimationPosition.x,10) + 
-									' - Linear ' + parseInt(linearPosition.x,10) + 
-									' - Eased ' + parseInt(easingCurPosition.x,10) + 
-									' - Time ' + Math.min(currentAnimationTime, currentAnimationDuration.x) + 
-									' - Duration ' + currentAnimationDuration.x);
-						}
-						if (o.debug === true || o.debug.y === true) {
-							console.log(lastAnimatedTimeStamp +
-									' Target Y ' + parseInt(targetPosition.y,10) + 
-									' - Start ' + parseInt(currentStartAnimationPosition.y,10) + 
-									' - Linear ' + parseInt(linearPosition.y,10) + 
-									' - Eased ' + parseInt(easingCurPosition.y,10) + 
-									' - Time ' + Math.min(currentAnimationTime, currentAnimationDuration.y) + 
-									' - Duration ' + currentAnimationDuration.y);
-						}
-					}
+					// DEBUG
+					_debugOutput(o, linearPosition, easingCurPosition, currentAnimationTime);
 					
 					if ($.isNumeric(easingCurPosition.x) && $.isNumeric(easingCurPosition.y)) {
 						// update currentPosition state
