@@ -548,4 +548,9 @@
 		return _init(o);
 		
 	}; // end $.fn.extend
+	
+	// Attach to public object for tests
+	$._eventAnimate = {
+		_validateEach: _validateEach
+	};
 })(jQuery);
