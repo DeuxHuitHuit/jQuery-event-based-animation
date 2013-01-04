@@ -9,12 +9,93 @@
 	
 	"use strict";
 	
+	// Utilities
+	var
+	
+	// Window object
+	win = $(window),
+	
+	// Safe division
+	sdiv = function (n, d) {
+		// This function will be compiled as a one liner
+		// So we can leave this code, which is way more readable then
+		// return (!n || !d) ? 0 : n/d;
+		if (!n || !d) {
+			return 0;
+		}
+		return n/d;
+	},
+	
+	// Console shim
+	_error = function (msg) {
+		if (!!window.console && !!console.err) {
+			console.err('[eventAnimate] ' + msg);
+		}
+	},
+	
+	// Quick iterator
+	_forEach = function (o, iterator) {
+		$.each(o.properties, function _each(index, key) {
+			return iterator(key);
+		});
+	},
+	
+	// Quick setter
+	_setEach = function (o, object, values) {
+		_forEach(o, function _setOne(key) {
+			object[key] = $.isFunction(values) ? 
+							values(key) : 
+							($.isArray(values) ? values[key] : values);
+		});
+	},
+	
+	// Quick validator
+	_and = function (a,b) { return a && b; },
+	_or = function (a,b) { return a || b; },
+	_validateEach = function (o, validator, isOr) {
+		var 
+		isAnd = !isOr,
+		fx = isAnd ? _and : _or,
+		result = isAnd; // add true if and, false if or
+		
+		_forEach(o, function _validateOne(key) {
+			result = fx(result, validator(key));
+			if ((isAnd && result) || (!isAnd && !result)) {
+				return false; // exit
+			}
+		});
+		
+		return result;
+	},
+	
+	// Raf...
+	_setTimeout = function (fx, delay) {
+		var w = window,
+			frm = w.requestAnimationFrame || w.mozRequestAnimationFrame ||  
+				w.webkitRequestAnimationFrame || w.msRequestAnimationFrame ||
+				w.oRequestAnimationFrame || w.setTimeout;
+	
+		return frm(fx, frm === w.setTimeout ? delay : o.container.get(0));
+	},
+	
+	// cRaf...
+	_clearTimeout = function (timeout) {
+		var w = window,
+			frm = w.cancelAnimationFrame || w.webkitCancelRequestAnimationFrame ||
+				w.mozCancelRequestAnimationFrame || w.oCancelRequestAnimationFrame ||
+				w.msCancelRequestAnimationFrame  || w.clearTimeout;
+				
+		return frm(timeout);
+	};
+	
+	// isString support
 	if (!$.isFunction($.isString)) {
 		$.isString = function (object) {
 			return $.type(object) === 'string';
 		};
 	}
 	
+	// jQuery plugin
 	$.fn.eventAnimate = function (options) {
 		
 		var
@@ -22,64 +103,8 @@
 		// the target DOMElement
 		t = $(this),
 		
-		// Window object
-		win = $(window),
-		
 		// Quick timestamp
 		now = $.now,
-		
-		// Safe division
-		sdiv = function (n, d) {
-			// This function will be compiled as a one liner
-			// So we can leave this code, which is way more readable then
-			// return (!n || !d) ? 0 : n/d;
-			if (!n || !d) {
-				return 0;
-			}
-			return n/d;
-		},
-		
-		// Console shim
-		_error = function (msg) {
-			if (!!window.console && !!console.err) {
-				console.err('[eventAnimate] ' + msg);
-			}
-		},
-		
-		// Quick iterator
-		_forEach = function (o, iterator) {
-			$.each(o.properties, function _each(index, key) {
-				return iterator(key);
-			});
-		},
-		
-		// Quick setter
-		_setEach = function (o, object, values) {
-			_forEach(o, function _setOne(key) {
-				object[key] = $.isFunction(values) ? 
-								values(key) : 
-								($.isArray(values) ? values[key] : values);
-			});
-		},
-		
-		// Quick validator
-		_and = function (a,b) { return a && b; },
-		_or = function (a,b) { return a || b; },
-		_validateEach = function (o, validator, isOr) {
-			var 
-			isAnd = !isOr,
-			fx = isAnd ? _and : _or,
-			result = isAnd; // add true if and, false if or
-			
-			_forEach(o, function _validateOne(key) {
-				result = fx(result, validator(key));
-				if ((isAnd && result) || (!isAnd && !result)) {
-					return false; // exit
-				}
-			});
-			
-			return result;
-		},
 		
 		// Last event triggered
 		eventTimeStamp = now(),
@@ -110,31 +135,13 @@
 			_setEach(o, currentPosition, 0);
 		},
 		
-		// Raf...
-		_setTimeout = function (fx, delay) {
-			var w = window,
-				frm = w.requestAnimationFrame || w.mozRequestAnimationFrame ||  
-					w.webkitRequestAnimationFrame || w.msRequestAnimationFrame ||
-					w.oRequestAnimationFrame || w.setTimeout;
-		
-			return frm(fx, frm === w.setTimeout ? delay : o.container.get(0));
-		},
-		
-		// cRaf...
-		_clearTimeout = function (timeout) {
-			var w = window,
-				frm = w.cancelAnimationFrame || w.webkitCancelRequestAnimationFrame ||
-					w.mozCancelRequestAnimationFrame || w.oCancelRequestAnimationFrame ||
-					w.msCancelRequestAnimationFrame  || w.clearTimeout;
-					
-			return frm(timeout);
-		},
-		
-		//Reference the current timer
+		// Reference the current timer
 		timer = null,
 		
+		// Animating flag
 		isMoving = false,
 		
+		// Path for items without an offset
 		defaultOffset = {left:0,top:0},
 		
 		// Event Strategies implementation
@@ -315,10 +322,12 @@
 						// Save the start point of the animation
 						var startValues = _getStartValues(o);
 						
-						// Update target distances
-						_setEach(o, targetDistance, function _updateTargetDistance(key) {
-							return targetPosition[key] - startValues[key];
-						});
+						if (!!o.restartOnEvent) {
+							// Update target distances
+							_setEach(o, targetDistance, function _updateTargetDistance(key) {
+								return targetPosition[key] - startValues[key];
+							});
+						}
 						
 						// Update current duration
 						currentAnimationDuration = _getDuration(o, targetDistance, startValues, targetPosition);
@@ -329,9 +338,13 @@
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
 						// This acts as the new animation start
 						if (!isMoving || !!o.restartOnEvent) {
-							lastAnimatedTimeStamp = now();
+							lastAnimatedTimeStamp = now()-1;
 						}
-					} // if scrolled
+					} // if changed
+					// continue where we are at 
+					else {
+						
+					}
 					
 					// Begin Var
 					var 
@@ -377,12 +390,12 @@
 						currentPosition = easingCurPosition;
 					}
 					
-					// Start Callback
+					// start Callback
 					if (!isMoving && $.isFunction(o.start)) {
 						o.start.call(t, currentAnimationTime, currentPosition);
 					}
 					
-					// Assure moving flag is on
+					// assure moving flag is on
 					isMoving = true;
 					
 					// if we still have time left on the animation
@@ -400,7 +413,7 @@
 						o.step.call(t, currentAnimationTime, currentPosition);
 					}
 					
-					// End Callback
+					// end Callback
 					if (timer === null) {
 						if ($.isFunction(o.complete)) {
 							o.complete.call(t, currentAnimationTime, currentPosition);
@@ -425,7 +438,7 @@
 			}
 		},
 		
-		// assure minimal option object
+		// assure default options values
 		o = $.extend({
 			// The DOMElement where to listen the event. Target if omitted.
 			container: null,
@@ -479,6 +492,7 @@
 			debug: false
 		}, options),
 		
+		// The actual jquery plugin function
 		_init = function (o) {
 		
 			// If no container is set, use the target
