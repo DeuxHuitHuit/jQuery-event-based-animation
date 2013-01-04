@@ -52,18 +52,9 @@
 		},
 		
 		// Quick validator
-		_validateEach = function (o, validator, operation) {
-			// Fix arguments
-			if ($.isFunction(operation)) {
-				var oldVal = validator;
-				validator = operation;
-				operation = oldVal;
-			} else if (operation !== '||') {
-				operation = '&&';
-			}
-			
+		_validateEach = function (o, validator, isOr) {
 			var 
-			isAnd = operation === '&&',
+			isAnd = !isOr,
 			and = function (a,b) { return a && b; },
 			or = function (a,b) { return a || b; },
 			fx = isAnd ? and : or,
@@ -273,11 +264,6 @@
 			return targetDistance[key] !== 0; 
 		},
 		
-		// Time left
-		_hasTimeLeft = function (key) {
-			return currentAnimationTime < currentAnimationDuration[key];
-		},
-		
 		// Called at every tick
 		_nextFrame = function () {
 			
@@ -289,7 +275,7 @@
 				});
 				
 				// Animation : Do we have something to travel?
-				if (_validateEach(o, '||', _distanceIsNotZero)) {
+				if (_validateEach(o, _distanceIsNotZero, true)) {
 					
 					// if the value changed since lass pass,
 					// i.e. an event occur between two frames
@@ -322,7 +308,9 @@
 					
 					// Current animation time (where are we rith now)
 					currentAnimationTime = now() - lastAnimatedTimeStamp,
-					
+					hasTimeLeft = function (key) {
+						return currentAnimationTime < currentAnimationDuration[key];
+					},
 					// Linear/swing algorigthm
 					linearPosition = _getLegacyEasingValue(o, currentAnimationTime),
 					easingFx = o.easing || $.easing.def || 'linear',
@@ -349,7 +337,7 @@
 									// duration
 									currentAnimationDuration[key]
 								);
-					})
+					});
 					
 					// DEBUG
 					_debugOutput(o, linearPosition, easingCurPosition, currentAnimationTime);
@@ -368,7 +356,7 @@
 					isMoving = true;
 					
 					// if we still have time left on the animation
-					if (_validateEach(o, _hasTimeLeft, '||')) {
+					if (_validateEach(o, hasTimeLeft, true)) {
 						// queue next frame
 						startTimer();
 					} else {
