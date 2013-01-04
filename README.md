@@ -3,8 +3,10 @@
 #### Version 1.1
 
 jQuery plugin that offers a different way to do animations. jQuery animations are time based,
-i.e. total duration us know from the start. This project aims to break thir barrier by allowing
-you to change end (or target) values during the animation, based on multiples events.
+i.e. total duration us know from the start. This project aims to break this barrier by allowing
+you to change end (or target) values during the animation, based on multiples events. If you try
+to do something like this with `$.fn.animate` and `$.fn.stop`, you will see that the effect is
+jerky and that real control is pretty impossible to achieve. 
 
 The two main goals of this project is to avoid having the same *raf* loop copied all over
 the place and to provide a flexible approach to event based animation yet maintaining a
@@ -15,7 +17,8 @@ simple ways to customize the behavior, mostly via callbacks functions.
 ````javascript
 $('#target').eventAnimate({
 	// event: 'scroll', // is the default
-	durationRatio: 1,
+	duration: 1000,
+	easing: 'swing', // of whatever!
 	step: function (time, position) {
 		this.find('.anim').css({
 			left: position.x + 'px',
@@ -24,6 +27,14 @@ $('#target').eventAnimate({
 	}
 });
 ````
+
+Now, if the scroll values changes during the animation, even if the scroll
+changes direction, the animation will continue towards the new value, starting
+from where it is currently.
+
+The plugin does not actually touch the DOM. It is your responsability to implement
+a proper step function for the animation you want to do. This makes animation on mutiple element
+much faster to process.
 
 See the tests for more examples.
 
