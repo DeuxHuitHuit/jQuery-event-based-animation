@@ -1,8 +1,9 @@
 /*
  *  Event Based Animation v1.0 - jQuery plugin
  *
- *  Copyright (c) 2012 Deux Huit Huit (http://www.deuxhuithuit.com/)
- *  Licensed under the MIT (https://raw.github.com/DeuxHuitHuit/jQuery-event-based-animation/master/LICENSE.txt)
+ *  Copyright (c) 2012-2013 Deux Huit Huit (http://www.deuxhuithuit.com/)
+ *  Licensed under the MIT LICENSE
+ *  (https://raw.github.com/DeuxHuitHuit/jQuery-event-based-animation/master/LICENSE.txt)
  */
 (function ($, undefined) {
 	
@@ -212,15 +213,28 @@
 	
 		// Parses the duration options
 		_getDuration = function(o, targetDistance, startValues, targetValues) {
-			var r = {};
+			var 
+			durationRatio = o.durationRatio || 1,
+			r = {},
+			getDurationRatio = function (key) {
+				return durationRatio[key] || durationRatio;
+			};
+			
+			// Parse duration ratio
+			if ($.isFunction(durationRatio)) {
+				durationRatio = durationRatio.call(t, o, targetDistance, startValues, targetValues);
+			}
+			
 			if ($.isFunction(o.duration)) {
-				var result = o.duration.call(t, o, targetDistance);
+				var result = o.duration.call(t, o, targetDistance, startValues, targetValues);
 				_setEach(o, r, function _setCalledDuration(key) {
-					return Math.abs(result[key] || result || targetDistance[key]) * o.durationRatio;
+					var keyedRes = result[key] || result || targetDistance[key];
+					return Math.abs(keyedRes) * getDurationRatio(key);
 				});
 			} else {
-				_setEach(o, r, function _setOneDirection(key) {
-					return Math.abs(o.duration[key] || o.duration || targetDistance[key]) * o.durationRatio;
+				_setEach(o, r, function _setOneDuration(key) {
+					var keyedDuration = o.duration[key] || o.duration || targetDistance[key];
+					return Math.abs(keyedDuration) * getDurationRatio(key);
 				});
 			}
 			return r;
@@ -242,7 +256,10 @@
 		_getLegacyEasingValue = function (o, currentAnimationTime) {
 			var e = {};
 			_setEach(o, e, function _computeLegacyEasingValue(key) {
-				return currentStartAnimationPosition[key] + (Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration[key])) * (targetPosition[key] - currentStartAnimationPosition[key]));
+				var
+				dist = targetPosition[key] - currentStartAnimationPosition[key],
+				time = Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration[key]));
+				return currentStartAnimationPosition[key] + (time * dist);
 			});
 			return e;
 		},
@@ -410,22 +427,56 @@
 		
 		// assure minimal option object
 		o = $.extend({
-			container: null, // The DOMElement where to listen the event. Target if omitted.
-			tick: 16, // Default timeout when requestAnimationFrame is not available. In ms.
-			event: 'scroll', // The event(s) to listen for changes
-			properties: 'x y', // The properties that we are animating (array or string)
-			delayStart: false, // Make the event schedule next frame instead of calling it
-			duration: 0, // Both axis animation duration. Numeric, object (x:1,y:1} or function
-			durationRatio: 1, // Duration modifier. Particularly usefull when duration depends on distance
-			restartOnEvent: false, // creates an absolute start time instead of relative to the last event
-			stop: null, // A stop function to stop the animation. Your logic, your rules.
-			step: null, // A function to call at each step of the animation.
-			complete: null, // A callback function called when the animation ends.
-			start: null, // A callback function called when the animation begins.
-			easing: null, // A easing function to use. $.easing.def or linear if omitted.
-			strategy: null, // A strategy function for your custom event.
-			startValues: null, // A function that permits override of the stating values
-			debug: false // Set to true to get extra data in the console. Can be set per axis {x:false, y:true}
+			// The DOMElement where to listen the event. Target if omitted.
+			container: null,
+			
+			// Default timeout when requestAnimationFrame is not available. In ms.
+			tick: 16,
+			
+			// The event(s) to listen for changes
+			event: 'scroll', 
+			
+			// The properties that we are animating (array or string)
+			properties: 'x y',
+			
+			// Make the event schedule next frame instead of calling it
+			delayStart: false,
+			
+			// Both axis animation duration.
+			// Numeric, object (x:1,y:1} or function (o, targetDistance, startValues, targetValues)
+			duration: 0, 
+			
+			// Duration modifier. Particularly usefull when duration depends on distance.
+			// Numeric, object (x:1,y:1} or function (o, targetDistance, startValues, targetValues)
+			durationRatio: 1, 
+			
+			// Creates an absolute start time instead of relative to the last event
+			restartOnEvent: false,
+			
+			// A stop function to stop the animation. Your logic, your rules.
+			stop: null,
+			
+			// A function to call at each step of the animation.
+			step: null,
+			
+			// A callback function called when the animation ends.
+			complete: null,
+			
+			// A callback function called when the animation begins.
+			start: null, 
+			
+			// A easing function to use. $.easing.def or linear if omitted.
+			easing: null,
+			
+			// A strategy function for your custom event.
+			strategy: null,
+			
+			// A function that permits override of the stating values
+			startValues: null, 
+			
+			// Set to true to get extra data in the console.
+			// Can be set per property, i.e. {x:false, y:true}
+			debug: false
 		}, options);
 		
 		// If no container is set, use the target
@@ -460,7 +511,7 @@
 			o.properties = o.properties.split(' ');
 		}
 		
-		// If no animatable properties have been found
+		// If no animate-able properties have been found
 		if (!$.isArray(o.properties) || o.properties.length < 1) {
 			// Cannot continue
 			_error('No animatable properties have been set.');

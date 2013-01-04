@@ -145,7 +145,10 @@
 				event: 'click',
 				debug: true,
 				//duration: 1000,
-				durationRatio: 3,
+				durationRatio: {
+					x: 1,
+					y: 3
+				},
 				restartOnEvent: true,
 				step: function (time, position) {
 					this.find('.anim').css({
