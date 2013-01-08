@@ -467,21 +467,28 @@
 			restartOnEvent: false,
 			
 			// A stop function to stop the animation. Your logic, your rules.
+			// function (options) { return true||false; }
 			stop: null,
 			
 			// A function to call at each step of the animation.
+			// function (currentAnimationTime, currentPosition)
 			step: null,
 			
 			// A callback function called when the animation ends.
+			// function (currentAnimationTime, currentPosition)
 			complete: null,
 			
 			// A callback function called when the animation begins.
+			// function (currentAnimationTime, currentPosition)
 			start: null, 
 			
 			// A easing function to use. $.easing.def or linear if omitted.
 			easing: null,
 			
 			// A strategy function for your custom event.
+			// This parameters accepts function (e, o, targetPosition),
+			// string (containing the name of the function) or and
+			// object that contains mutiple stategy ({scroll:..., click:...}
 			strategy: null,
 			
 			// A function that permits override of the stating values
