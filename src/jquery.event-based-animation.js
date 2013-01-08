@@ -385,7 +385,7 @@
 					// DEBUG
 					_debugOutput(o, linearPosition, easingCurPosition, currentAnimationTime);
 					
-					if (_validateEach(o, easingIsNumeric)) {
+					if (_validateEach(o, easingIsNumeric, true)) {
 						// update currentPosition state
 						currentPosition = easingCurPosition;
 					}
