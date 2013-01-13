@@ -18,7 +18,7 @@ simple ways to customize the behavior, mostly via callbacks functions.
 $('#target').eventAnimate({
 	// event: 'scroll', // is the default
 	duration: 1000,
-	easing: 'swing', // of whatever!
+	easing: 'swing', // or whatever!
 	step: function (time, position) {
 		this.find('.anim').css({
 			left: position.x + 'px',
@@ -32,8 +32,8 @@ Now, if the scroll values changes during the animation, even if the scroll
 changes direction, the animation will continue towards the new value, starting
 from where it is currently.
 
-The plugin does not actually touch the DOM. It is your responsability to implement
-a proper step function for the animation you want to do. This makes animation on mutiple element
+The plugin does not actually touch the DOM. It is your responsibility to implement
+a proper `step` function for the animation you want to do. This makes animation on multiple elements
 much faster to process.
 
 See the tests for more examples.
@@ -90,9 +90,13 @@ These are all the supported options and their default values.
 	easing: null,
 	
 	// A strategy function for your custom event.
-	// This parameters accepts function (e, o, targetPosition),
+	// This parameters accepts function (e, o, targetPosition, ...),
 	// string (containing the name of the function) or and
-	// object that contains mutiple stategy ({scroll:..., click:...}
+	// object that contains mutiple stategy ({scroll:..., click:...}.
+	// Note that this function will receive all arguments you would
+	// expect from that event, after the targetPosition parameter.
+	// scroll, click, mouseover, mousemove and touchmove are already
+	// implemented but easily overridable.
 	strategy: null,
 	
 	// A function that permits override of the stating values
