@@ -175,12 +175,20 @@
 		// Handle the container event
 		_handleEvent = function (e) {
 			var 
+			args = [e,o,targetPosition],
 			eventName = e.type || o.event,
 			strategy = _eventStrategies[eventName];
 			
 			if ($.isFunction(strategy)) {
-				// Call the strategy 
-				strategy.call(t, e, o, targetPosition);
+				$.each(arguments, function _eachArg(index, arg) {
+					if (index > 0) {
+						args.push(arg);
+					}
+				});
+				
+				// Call the strategy with all the
+				// original args
+				strategy.apply(t, args);
 				
 				// Update the event time
 				if (!isMoving || !!o.restartOnEvent) {
