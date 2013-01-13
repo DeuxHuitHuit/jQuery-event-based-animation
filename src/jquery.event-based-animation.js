@@ -29,7 +29,7 @@
 	// Console shim
 	_error = function (msg) {
 		if (!!window.console && !!console.err) {
-			console.err('[eventAnimate] ' + msg);
+			console.error('[eventAnimate] ' + msg);
 		}
 	},
 	
