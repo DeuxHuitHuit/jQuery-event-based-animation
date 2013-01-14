@@ -45,7 +45,7 @@
 		_forEach(o, function _setOne(key) {
 			object[key] = $.isFunction(values) ? 
 							values(key) : 
-							($.isArray(values) ? values[key] : values);
+							($.isArray(values) || $.isPlainObject(values) ? values[key] : values);
 		});
 	},
 	
