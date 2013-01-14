@@ -260,6 +260,8 @@
 			var startValues = null;
 			if ($.isFunction(o.startValues)) {
 				startValues = o.startValues(o);
+			} else if ($.isPlainObject(o.startValues)) {
+				startValues = o.startValues;
 			}
 			if (!startValues) {
 				startValues = currentPosition;
