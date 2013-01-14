@@ -263,6 +263,7 @@
 			} else if ($.isPlainObject(o.startValues)) {
 				startValues = o.startValues;
 			}
+			// use start values if nothing is found
 			if (!startValues) {
 				startValues = currentPosition;
 			}
