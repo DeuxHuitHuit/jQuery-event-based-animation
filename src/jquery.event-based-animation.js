@@ -261,7 +261,10 @@
 			if ($.isFunction(o.startValues)) {
 				startValues = o.startValues(o);
 			} else if ($.isPlainObject(o.startValues)) {
-				startValues = o.startValues;
+				startValues = {};
+				_setEach(o, startValues, function _setEachStartValue(key) {
+					return o.startValues[key] || currentPosition[key];
+				});
 			}
 			// use start values if nothing is found
 			if (!startValues) {
