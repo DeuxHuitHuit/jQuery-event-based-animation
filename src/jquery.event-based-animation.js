@@ -107,7 +107,7 @@
 		now = $.now,
 		
 		// Last event triggered
-		eventTimeStamp = now(),
+		eventTimeStamp = 0,
 		
 		// Last animation frame
 		lastAnimatedTimeStamp = eventTimeStamp,
@@ -273,8 +273,8 @@
 			_setEach(o, e, function _computeLegacyEasingValue(key) {
 				var
 				dist = targetPosition[key] - currentStartAnimationPosition[key],
-				time = Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration[key]));
-				return currentStartAnimationPosition[key] + (time * dist);
+				timeRatio = Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration[key]));
+				return currentStartAnimationPosition[key] + (timeRatio * dist);
 			});
 			return e;
 		},
@@ -346,7 +346,7 @@
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
 						// This acts as the new animation start
 						if (!isMoving || !!o.restartOnEvent) {
-							lastAnimatedTimeStamp = now()-1;
+							lastAnimatedTimeStamp = eventTimeStamp-1;
 						}
 					} // if changed
 					// continue where we are at 
@@ -362,7 +362,7 @@
 					hasTimeLeft = function (key) {
 						return currentAnimationTime < currentAnimationDuration[key];
 					},
-					// Linear/swing algorigthm
+					// Linear/swing algorithm
 					linearPosition = _getLegacyEasingValue(o, currentAnimationTime),
 					easingFx = o.easing || $.easing.def || 'linear',
 					easingCurPosition = {},
@@ -373,18 +373,24 @@
 					
 					// calculate easing
 					_setEach(o, easingCurPosition, function _setEasing(key) {
+						var 
+						time = Math.min(currentAnimationTime, currentAnimationDuration[key]),
+						dist = targetPosition[key] - currentStartAnimationPosition[key];
+						
+						// never call easing fx without a duration
+						return !currentAnimationDuration[key] ? targetPosition[key] :
 						// We documented the parameter names and logic, since there is an error on
 						// the main doc: http://gsgd.co.uk/sandbox/jquery/easing/.
-						// `end_value` is actually a diff (delta).
-						return $.easing[easingFx](
+						// `end_value` is actually a delta of the values.
+								$.easing[easingFx](
 									// old_fx
 									linearPosition[key], 
 									// current_time
-									Math.min(currentAnimationTime, currentAnimationDuration[key]),
+									time,
 									// start_value
 									currentStartAnimationPosition[key],
-									// end_value-start_value (diff)
-									targetPosition[key]-currentStartAnimationPosition[key],
+									// end_value-start_value (dist)
+									dist,
 									// duration
 									currentAnimationDuration[key]
 								);
@@ -572,4 +578,5 @@
 	$._eventAnimate = {
 		_validateEach: _validateEach
 	};
+	
 })(jQuery);
