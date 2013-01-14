@@ -130,7 +130,8 @@
 		_initVariables = function (o) {
 			_setEach(o, currentAnimationDuration, 0);
 			_setEach(o, currentStartAnimationPosition, 0);
-			_setEach(o, targetPosition, 0);
+			_setEach(o, targetPosition, 0); // Assure members
+			_setEach(o, targetPosition, _getStartValues(o)); // Set start
 			_setEach(o, targetDistance, 0);
 			_setEach(o, currentPosition, 0);
 		},
@@ -336,6 +337,7 @@
 						// Save the start point of the animation
 						var startValues = _getStartValues(o);
 						
+						// If we should restart anim on event
 						if (!!o.restartOnEvent) {
 							// Update target distances
 							_setEach(o, targetDistance, function _updateTargetDistance(key) {
