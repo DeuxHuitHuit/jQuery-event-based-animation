@@ -86,6 +86,54 @@
 				w.msCancelRequestAnimationFrame  || w.clearTimeout;
 				
 		return frm(timeout);
+	},
+	
+	// Parses the duration options
+	_getDuration = function(o, targetDistance, startValues, targetValues) {
+		var 
+		// Assure we are deling with numbers
+		int = function (i) {
+			return parseInt(i, 10);
+		},
+		float = function (i) {
+			return parseFloat(i);
+		},
+		// The result
+		r = {},
+		// Get ratio object
+		durationRatio = ($.isFunction(o.durationRatio) && o.durationRatio.call(t, o, targetDistance, startValues, targetValues)) ||
+						o.durationRatio || {},
+						
+		// Get duration object
+		duration = ($.isFunction(o.duration) && o.duration.call(t, o, targetDistance, startValues, targetValues)) ||
+						o.duration || {},
+		
+		// Get a single int value
+		getInt = function (object, key) {
+			return int(object[key]) || int(object);
+		},
+		
+		// Get a single float value
+		getFloat = function (object, key) {
+			return float(object[key]) || float(object);
+		},
+		
+		// Parse one duration ratio
+		getDurationRatio = function (key) {
+			return getFloat(durationRatio, key) || 1.0;
+		},
+		
+		// Parse one duration
+		getDuration = function (key) {
+			return Math.abs(getInt(duration, key) || int(targetDistance[key]) || 1);
+		};
+		
+		// For each property
+		_setEach(o, r, function _setOneDuration(key) {
+			return getDuration(key) * getDurationRatio(key);
+		});
+		
+		return r;
 	};
 	
 	// isString support
@@ -226,35 +274,6 @@
 			}
 			return timer;
 		},
-	
-		// Parses the duration options
-		_getDuration = function(o, targetDistance, startValues, targetValues) {
-			var 
-			durationRatio = o.durationRatio || 1,
-			r = {},
-			getDurationRatio = function (key) {
-				return durationRatio[key] || durationRatio;
-			};
-			
-			// Parse duration ratio
-			if ($.isFunction(durationRatio)) {
-				durationRatio = durationRatio.call(t, o, targetDistance, startValues, targetValues);
-			}
-			
-			if ($.isFunction(o.duration)) {
-				var result = o.duration.call(t, o, targetDistance, startValues, targetValues);
-				_setEach(o, r, function _setCalledDuration(key) {
-					var keyedRes = result[key] || result || targetDistance[key];
-					return Math.abs(keyedRes) * getDurationRatio(key);
-				});
-			} else {
-				_setEach(o, r, function _setOneDuration(key) {
-					var keyedDuration = o.duration[key] || o.duration || targetDistance[key];
-					return Math.abs(keyedDuration) * getDurationRatio(key);
-				});
-			}
-			return r;
-		},
 		
 		// parses the startValue options
 		_getStartValues = function (o) {
@@ -372,16 +391,19 @@
 					},
 					// Linear/swing algorithm
 					linearPosition = _getLegacyEasingValue(o, currentAnimationTime),
-					easingFx = o.easing || $.easing.def || 'linear',
 					easingCurPosition = {},
 					easingIsNumeric = function (key) {
 						return $.isNumeric(easingCurPosition[key]);
-					};
+					},
+					easignIsObject = $.isPlainObject(o.easing);
 					// end var
 					
 					// calculate easing
 					_setEach(o, easingCurPosition, function _setEasing(key) {
 						var 
+						keyEasign = easignIsObject && o.easing[key],
+						stringEasing = !easignIsObject && o.easing,
+						easingFx = keyEasign || stringEasing || $.easing.def || 'linear',
 						time = Math.min(currentAnimationTime, currentAnimationDuration[key]),
 						dist = targetPosition[key] - currentStartAnimationPosition[key];
 						
@@ -583,8 +605,9 @@
 	}; // end $.fn.extend
 	
 	// Attach to public object for tests
-	$._eventAnimate = {
-		_validateEach: _validateEach
+	$.eventAnimate = {
+		_validateEach: _validateEach,
+		_getDuration: _getDuration
 	};
 	
 })(jQuery);
