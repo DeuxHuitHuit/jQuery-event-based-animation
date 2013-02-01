@@ -55,14 +55,22 @@
 			test('_getDuration', function sizeTest () {
 				var 
 				o = {
-					properties: ['x']
+					properties: ['x'],
+					duration: 20,
+					durationRatio: { x: 4 }
 				},
-				targetDistance = {},
-				startValues = {},
-				targetValues = {},
+				targetDistance = {
+					x: 100
+				},
+				startValues = {
+					x: 0
+				},
+				targetValues = {
+					x: 100
+				},
 				dur = $.eventAnimate._getDuration(o, targetDistance, startValues, targetValues);
 				
-				equal(!!dur.x, true, 'x has a value');
+				equal(dur.x, 80, '80');
 			});
 			
 		}; // end run tests
