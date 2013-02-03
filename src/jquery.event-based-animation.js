@@ -26,6 +26,14 @@
 		return n/d;
 	},
 	
+	// Assure we are dealing with numbers
+	int = function (i) {
+		return parseInt(i, 10);
+	},
+	float = function (i) {
+		return parseFloat(i);
+	},
+	
 	// Console shim
 	_error = function (msg) {
 		if (!!window.console) {
@@ -47,6 +55,7 @@
 							values(key) : 
 							($.isArray(values) || $.isPlainObject(values) ? values[key] : values);
 		});
+		return object;
 	},
 	
 	// Quick validator
@@ -91,13 +100,6 @@
 	// Parses the duration options
 	_getDuration = function(o, targetDistance, startValues, targetValues) {
 		var 
-		// Assure we are deling with numbers
-		int = function (i) {
-			return parseInt(i, 10);
-		},
-		float = function (i) {
-			return parseFloat(i);
-		},
 		// The result
 		r = {},
 		// Get ratio object
@@ -120,20 +122,26 @@
 		
 		// Parse one duration ratio
 		getDurationRatio = function (key) {
-			return getFloat(durationRatio, key) || 1.0;
+			return getFloat(durationRatio, key);
 		},
 		
 		// Parse one duration
 		getDuration = function (key) {
-			return Math.abs(getInt(duration, key) || int(targetDistance[key]) || 1);
+			return getInt(duration, key);
+		},
+		
+		// Parse the distance
+		getDistance = function (key) {
+			return Math.abs(int(targetDistance[key]));
 		};
 		
 		// For each property
-		_setEach(o, r, function _setOneDuration(key) {
-			return getDuration(key) * getDurationRatio(key);
+		return _setEach(o, r, function _setOneDuration(key) {
+			var
+			ratio = getDurationRatio(key),
+			dur = getDuration(key);
+			return !!ratio ? ratio * getDistance(key) : dur;
 		});
-		
-		return r;
 	};
 	
 	// isString support

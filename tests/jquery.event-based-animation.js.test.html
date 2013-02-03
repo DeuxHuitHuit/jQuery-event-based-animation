@@ -55,22 +55,25 @@
 			test('_getDuration', function sizeTest () {
 				var 
 				o = {
-					properties: ['x'],
+					properties: ['x', 'y'],
 					duration: 20,
 					durationRatio: { x: 4 }
 				},
 				targetDistance = {
-					x: 100
+					x: 100,
+					y: 100
 				},
-				startValues = {
-					x: 0
-				},
-				targetValues = {
-					x: 100
-				},
-				dur = $.eventAnimate._getDuration(o, targetDistance, startValues, targetValues);
+				startValues = {},
+				targetValues = {},
 				
-				equal(dur.x, 80, '80');
+				dur = $.eventAnimate._getDuration(o, targetDistance, startValues, targetValues);
+				equal(dur.x, 400, 'x 400 with ratio');
+				equal(dur.y, 20, 'y 20 with ratio');
+				
+				delete o.durationRatio;
+				dur = $.eventAnimate._getDuration(o, targetDistance, startValues, targetValues);
+				equal(dur.x, 20, 'x 20 without ratio');
+				equal(dur.y, 20, 'y 20 without ratio');
 			});
 			
 		}; // end run tests
