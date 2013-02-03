@@ -441,7 +441,7 @@
 					
 					if (_validateEach(o, easingIsNumeric, true)) {
 						// update currentPosition state
-						currentPosition = easingCurPosition;
+						_setEach(o, currentPosition, easingCurPosition);
 					}
 					
 					// start Callback
