@@ -3,6 +3,11 @@ module.exports = function(grunt) {
 
 	"use strict";
 	
+	var 
+	serverPort = 8080,
+	server = 'http://localhost:' + serverPort,
+	testFile = server + '/tests/jquery.event-based-animation.js.test.html?noglobals=true';
+	
 	// Project configuration.
 	grunt.initConfig({
 		pkg: '<json:package.json>',
@@ -16,11 +21,11 @@ module.exports = function(grunt) {
 		min: {
 			dist: {
 			src: ['<banner:meta.banner>', 'src/jquery.*.js'],
-			dest: 'dist/<%= pkg.name %>.min.js'
+				dest: 'dist/<%= pkg.name %>.min.js'
 			}
 		},
 		qunit: {
-			files: []
+			files: [testFile, testFile + '&jquery=1.7', testFile + '&jquery=1.6']
 		},
 		lint: {
 			files: ['grunt.js', 'src/jquery.*.js']
@@ -56,12 +61,12 @@ module.exports = function(grunt) {
 		},
 		uglify: {},
 		server: {
-			port: 8080,
+			port: serverPort,
 			base: '.'
 		}
 	});
 
 	// Default task.
-	grunt.registerTask('default', 'lint min');
+	grunt.registerTask('default', 'lint server qunit min');
 
 };
