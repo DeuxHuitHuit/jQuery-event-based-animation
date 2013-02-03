@@ -42,17 +42,52 @@
 	<script src="../src/jquery.event-based-animation.js"></script> 
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.10.0/qunit-1.10.0.js"></script>
 	<script>
-	(function ($) {
+	(function ($, undefined) {
 		
 		"use strict";
 		
-		var 
+		var
+		
+		win = $(window), 
 		
 		runTests = function  () {
 			
 			module('jQuery.event-based-animation');
 			
-			test('_getDuration', function sizeTest () {
+			test('int', function intTest () {
+				equal($.eventAnimate.int(1), 1, '1');
+				equal($.eventAnimate.int('1'), 1, '"1"');
+				equal($.eventAnimate.int(null), 0, 'null');
+				equal($.eventAnimate.int(), 0, 'undefined');
+				equal($.eventAnimate.int({}), 0, '{}');
+				equal($.eventAnimate.int({x:1}), 0, '{x:0}');
+			});
+			
+			test('float', function floatTest () {
+				equal($.eventAnimate.float(1), 1, '1');
+				equal($.eventAnimate.float('1'), 1, '"1"');
+				equal($.eventAnimate.float('1.5'), 1.5, '"1.5"');
+				equal($.eventAnimate.float(null), 0, 'null');
+				equal($.eventAnimate.float(), 0, 'undefined');
+				equal($.eventAnimate.float({}), 0, '{}');
+				equal($.eventAnimate.float({x:1}), 0, '{x:0}');
+			});
+			
+			test('_setEach', function setEachTest () {
+				var 
+				o = {
+					properties: ['x', 'y']
+				},
+				key = function (key) {
+					return key;
+				};
+				
+				deepEqual($.eventAnimate._setEach(o, {}, 1), {x:1, y:1}, '1');
+				deepEqual($.eventAnimate._setEach(o, {}, {x:10,y:20}), {x:10, y:20}, '{x:10,y:20}');
+				deepEqual($.eventAnimate._setEach(o, {}, key), {x:'x', y:'y'}, 'key');
+			});
+			
+			test('_getDuration', function durationTest () {
 				var 
 				o = {
 					properties: ['x', 'y'],
@@ -66,19 +101,75 @@
 				startValues = {},
 				targetValues = {},
 				
-				dur = $.eventAnimate._getDuration(o, targetDistance, startValues, targetValues);
+				dur = $.eventAnimate._getDuration(this, o, targetDistance, startValues, targetValues);
 				equal(dur.x, 400, 'x 400 with ratio');
 				equal(dur.y, 20, 'y 20 with ratio');
 				
-				delete o.durationRatio;
-				dur = $.eventAnimate._getDuration(o, targetDistance, startValues, targetValues);
-				equal(dur.x, 20, 'x 20 without ratio');
-				equal(dur.y, 20, 'y 20 without ratio');
+				o.durationRatio.x = undefined;
+				dur = $.eventAnimate._getDuration(this, o, targetDistance, startValues, targetValues);
+				deepEqual(dur, {x:20, y:20}, 'x 20, y 20 without ratio');
+				
+				o.durationRatio.y = 1;
+				o.duration = {x:30};
+				dur = $.eventAnimate._getDuration(this, o, targetDistance, startValues, targetValues);
+				deepEqual(dur, {x:30, y:100}, 'x 30, y 100 with object');
+				
+				o.durationRatio.y = 2;
+				o.duration = function (o, targetDistance, startValues, targetValues) {
+					return {x:30};
+				};
+				dur = $.eventAnimate._getDuration(this, o, targetDistance, startValues, targetValues);
+				deepEqual(dur, {x:30, y:200}, 'x 30, y 200 with fx');
+			});
+			
+			test('_getStartValues', function startValuesTest () {
+				var
+				o = {
+					properties: ['x', 'y'],
+					startValues: null
+				},
+				current = null;
+				
+				equal($.eventAnimate._getStartValues(o, current), null, 'null');
+				
+				current = {x:0, y:0};
+				deepEqual($.eventAnimate._getStartValues(o, current), current, 'current');
+				
+				o.startValues = {x:10};
+				deepEqual($.eventAnimate._getStartValues(o, current), {x:10,y:0}, '{x:10,y:undefined}');
+				
+				o.startValues = {x:10,y:20};
+				deepEqual($.eventAnimate._getStartValues(o, current), {x:10,y:20}, '{x:10,y:20}');
+				
+				o.startValues = function (o) {
+					return {x:20, y:10};
+				};
+				deepEqual($.eventAnimate._getStartValues(o, current), {x:20,y:10}, 'fx');
+				
+			});
+			
+			test('_getEasing', function easingTest () {
+				var
+				o = {
+					properties: ['x', 'y'],
+					easing: null
+				};
+				
+				equal($.eventAnimate._getEasing(o, 'x'), 'linear', 'x linear');
+				equal($.eventAnimate._getEasing(o, 'y'), 'linear', 'y linear');
+				
+				$.easing.def = 'test';
+				equal($.eventAnimate._getEasing(o, 'x'), $.easing.def, 'x $.easing.def');
+				equal($.eventAnimate._getEasing(o, 'y'), $.easing.def, 'y $.easing.def');
+				
+				o.easing = {x:'swing'};
+				equal($.eventAnimate._getEasing(o, 'x'), o.easing.x, 'x o.easing.x');
+				equal($.eventAnimate._getEasing(o, 'y'), $.easing.def, 'y $.easing.def');
 			});
 			
 		}; // end run tests
 		
-		$(window).load(runTests);
+		win.load(runTests);
 		
 	})(jQuery);
 	</script>

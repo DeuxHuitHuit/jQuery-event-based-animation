@@ -28,10 +28,10 @@
 	
 	// Assure we are dealing with numbers
 	int = function (i) {
-		return parseInt(i, 10);
+		return parseInt(i, 10) || 0;
 	},
 	float = function (i) {
-		return parseFloat(i);
+		return parseFloat(i) || 0;
 	},
 	
 	// Console shim
@@ -53,14 +53,14 @@
 		_forEach(o, function _setOne(key) {
 			object[key] = $.isFunction(values) ? 
 							values(key) : 
-							($.isArray(values) || $.isPlainObject(values) ? values[key] : values);
+							($.isPlainObject(values) ? values[key] : values);
 		});
 		return object;
 	},
 	
 	// Quick validator
-	_and = function (a,b) { return a && b; },
-	_or = function (a,b) { return a || b; },
+	_and = function (a,b) { return !!(a && b); },
+	_or = function (a,b) { return !!(a || b); },
 	_validateEach = function (o, validator, isOr) {
 		var 
 		isAnd = !isOr,
@@ -98,7 +98,7 @@
 	},
 	
 	// Parses the duration options
-	_getDuration = function(o, targetDistance, startValues, targetValues) {
+	_getDuration = function(t, o, targetDistance, startValues, targetValues) {
 		var 
 		// The result
 		r = {},
@@ -131,7 +131,7 @@
 		},
 		
 		// Parse the distance
-		getDistance = function (key) {
+		getAbsDistance = function (key) {
 			return Math.abs(int(targetDistance[key]));
 		};
 		
@@ -140,8 +140,33 @@
 			var
 			ratio = getDurationRatio(key),
 			dur = getDuration(key);
-			return !!ratio ? ratio * getDistance(key) : dur;
+			return !!ratio ? ratio * getAbsDistance(key) : dur;
 		});
+	},
+	
+	// parses the startValue options
+	_getStartValues = function (o, currentPosition) {
+		var startValues = null;
+		if ($.isFunction(o.startValues)) {
+			startValues = o.startValues(o);
+		} else if ($.isPlainObject(o.startValues)) {
+			startValues = _setEach(o, {}, function _setEachStartValue(key) {
+				return float(o.startValues[key] || currentPosition[key]);
+			});
+		}
+		// use current Position if nothing is found
+		if (!startValues) {
+			startValues = currentPosition;
+		}
+		return startValues;
+	},
+	
+	_getEasing = function (o, key) {
+		var
+		easignIsObject = $.isPlainObject(o.easing),
+		keyEasign = easignIsObject && o.easing[key],
+		stringEasing = !easignIsObject && o.easing;
+		return keyEasign || stringEasing || $.easing.def || 'linear';
 	};
 	
 	// isString support
@@ -183,13 +208,13 @@
 		// Save the current ghost position (Refreshed when tick apply animation)
 		currentPosition = {},
 		
+		// Init all members for each object
 		_initVariables = function (o) {
 			_setEach(o, currentAnimationDuration, 0);
 			_setEach(o, currentStartAnimationPosition, 0);
-			_setEach(o, targetPosition, 0); // Assure members
-			_setEach(o, targetPosition, _getStartValues(o)); // Set start
 			_setEach(o, targetDistance, 0);
-			_setEach(o, currentPosition, 0);
+			_setEach(o, targetPosition, 0);
+			_setEach(o, currentPosition, _getStartValues(o, targetPosition));
 		},
 		
 		// Reference the current timer
@@ -283,34 +308,14 @@
 			return timer;
 		},
 		
-		// parses the startValue options
-		_getStartValues = function (o) {
-			var startValues = null;
-			if ($.isFunction(o.startValues)) {
-				startValues = o.startValues(o);
-			} else if ($.isPlainObject(o.startValues)) {
-				startValues = {};
-				_setEach(o, startValues, function _setEachStartValue(key) {
-					return o.startValues[key] || currentPosition[key];
-				});
-			}
-			// use start values if nothing is found
-			if (!startValues) {
-				startValues = currentPosition;
-			}
-			return startValues;
-		},
-		
 		// Calculate the first "legacy" easing parameter
 		_getLegacyEasingValue = function (o, currentAnimationTime) {
-			var e = {};
-			_setEach(o, e, function _computeLegacyEasingValue(key) {
+			return _setEach(o, {}, function _computeLegacyEasingValue(key) {
 				var
 				dist = targetPosition[key] - currentStartAnimationPosition[key],
 				timeRatio = Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration[key]));
 				return currentStartAnimationPosition[key] + (timeRatio * dist);
 			});
-			return e;
 		},
 		
 		// Ouputs one line per property
@@ -362,7 +367,7 @@
 					if (eventTimeStamp > lastAnimatedTimeStamp) {
 					
 						// Save the start point of the animation
-						var startValues = _getStartValues(o);
+						var startValues = _getStartValues(o, currentPosition);
 						
 						// If we should restart anim on event
 						if (!!o.restartOnEvent) {
@@ -373,7 +378,7 @@
 						}
 						
 						// Update current duration
-						currentAnimationDuration = _getDuration(o, targetDistance, startValues, targetPosition);
+						currentAnimationDuration = _getDuration(t, o, targetDistance, startValues, targetPosition);
 						
 						// Set start as current
 						currentStartAnimationPosition = startValues;
@@ -386,7 +391,7 @@
 					} // if changed
 					// continue where we are at 
 					else {
-						
+						// nothing ?
 					}
 					
 					// Begin Var
@@ -402,16 +407,13 @@
 					easingCurPosition = {},
 					easingIsNumeric = function (key) {
 						return $.isNumeric(easingCurPosition[key]);
-					},
-					easignIsObject = $.isPlainObject(o.easing);
+					};
 					// end var
 					
 					// calculate easing
 					_setEach(o, easingCurPosition, function _setEasing(key) {
 						var 
-						keyEasign = easignIsObject && o.easing[key],
-						stringEasing = !easignIsObject && o.easing,
-						easingFx = keyEasign || stringEasing || $.easing.def || 'linear',
+						easingFx = _getEasing(o, key),
 						time = Math.min(currentAnimationTime, currentAnimationDuration[key]),
 						dist = targetPosition[key] - currentStartAnimationPosition[key];
 						
@@ -471,7 +473,7 @@
 							o.complete.call(t, currentAnimationTime, currentPosition);
 						}
 						// reset if we have to
-						currentPosition = _getStartValues(o);
+						currentPosition = _getStartValues(o, currentPosition);
 					}
 					
 				} 
@@ -614,8 +616,14 @@
 	
 	// Attach to public object for tests
 	$.eventAnimate = {
+		int: int,
+		float: float,
+		_forEach: _forEach,
+		_setEach: _setEach,
 		_validateEach: _validateEach,
-		_getDuration: _getDuration
+		_getDuration: _getDuration,
+		_getStartValues: _getStartValues,
+		_getEasing: _getEasing
 	};
 	
 })(jQuery);
