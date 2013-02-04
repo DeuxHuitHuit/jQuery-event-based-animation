@@ -161,12 +161,39 @@
 		return startValues;
 	},
 	
+	// Parses the easing function name
 	_getEasing = function (o, key) {
 		var
 		easignIsObject = $.isPlainObject(o.easing),
 		keyEasign = easignIsObject && o.easing[key],
 		stringEasing = !easignIsObject && o.easing;
 		return keyEasign || stringEasing || $.easing.def || 'linear';
+	},
+	
+	// Event Strategies implementation
+	_handleScroll = function (e, o, targetPosition) {
+		targetPosition.x = o.container.scrollLeft();
+		targetPosition.y = o.container.scrollTop();
+	},
+	_handleMouse = function (e, o, targetPosition) {
+		var offset = o.container.offset() || defaultOffset;
+		targetPosition.x = e.pageX - offset.left;
+		targetPosition.y = e.pageY - offset.top;
+	},
+	_handleTouch = function (e, o, targetPosition) {
+		var offset = o.container.offset() || defaultOffset,
+			touch = e.originalEvent.touches[0];
+		targetPosition.x = touch.pageX - offset.left;
+		targetPosition.y = touch.pageY - offset.top;
+	},
+	
+	// Defaults Event Strategies
+	_defaultEventStrategies = {
+		scroll: _handleScroll,
+		click: _handleMouse,
+		mouseover: _handleMouse,
+		mousemove: _handleMouse,
+		touchmove: _handleTouch
 	};
 	
 	// isString support
@@ -189,6 +216,9 @@
 		
 		// Last event triggered
 		eventTimeStamp = 0,
+		
+		// event strategies
+		eventStrategies = $.extend({}, _defaultEventStrategies);
 		
 		// Last animation frame
 		lastAnimatedTimeStamp = eventTimeStamp,
@@ -226,40 +256,12 @@
 		// Path for items without an offset
 		defaultOffset = {left:0,top:0},
 		
-		// Event Strategies implementation
-		_handleScroll = function (e, o, targetPosition) {
-			targetPosition.x = o.container.scrollLeft();
-			targetPosition.y = o.container.scrollTop();
-		},
-		
-		_handleMouse = function (e, o, targetPosition) {
-			var offset = o.container.offset() || defaultOffset;
-			targetPosition.x = e.pageX - offset.left;
-			targetPosition.y = e.pageY - offset.top;
-		},
-		
-		_handleTouch = function (e, o, targetPosition) {
-			var offset = o.container.offset() || defaultOffset,
-				touch = e.originalEvent.touches[0];
-			targetPosition.x = touch.pageX - offset.left;
-			targetPosition.y = touch.pageY - offset.top;
-		},
-		
-		// Defaults Event Strategies
-		_eventStrategies = {
-			scroll: _handleScroll,
-			click: _handleMouse,
-			mouseover: _handleMouse,
-			mousemove: _handleMouse,
-			touchmove: _handleTouch
-		},
-		
 		// Handle the container event
 		_handleEvent = function (e) {
 			var 
 			args = [e,o,targetPosition],
 			eventName = e.type || o.event,
-			strategy = _eventStrategies[eventName];
+			strategy = eventStrategies[eventName];
 			
 			if ($.isFunction(strategy)) {
 				$.each(arguments, function _eachArg(index, arg) {
@@ -570,19 +572,19 @@
 			
 			// Add the new strategy if needed
 			if ($.isFunction(o.strategy)) {
-				_eventStrategies[o.event] = o.strategy;
+				eventStrategies[o.event] = o.strategy;
 			}
 			// If strategy is a string, try code re-use
 			else if ($.isString(o.strategy)) {
-				_eventStrategies[o.event] = _eventStrategies[o.strategy];
+				eventStrategies[o.event] = eventStrategies[o.strategy];
 			}
 			// If strategy is an object, add multiple events
 			else if ($.isPlainObject(o.strategy)) {
 				$.each(o.strategy, function _importStrategy(key, s) {
 					if ($.isString(s)) {
-						_eventStrategies[key] = _eventStrategies[s];
+						eventStrategies[key] = eventStrategies[s];
 					} else {
-						_eventStrategies[key] = s;
+						eventStrategies[key] = s;
 					}
 				});
 			}
@@ -623,7 +625,8 @@
 		_validateEach: _validateEach,
 		_getDuration: _getDuration,
 		_getStartValues: _getStartValues,
-		_getEasing: _getEasing
+		_getEasing: _getEasing,
+		_defaultEventStrategies: _defaultEventStrategies
 	};
 	
 })(jQuery);
