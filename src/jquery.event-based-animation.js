@@ -151,7 +151,7 @@
 	_getStartValues = function (o, currentPosition) {
 		var startValues = null;
 		if ($.isFunction(o.startValues)) {
-			startValues = o.startValues(o);
+			startValues = o.startValues(o, currentPosition);
 		} else if ($.isPlainObject(o.startValues)) {
 			startValues = _setEach(o, {}, function _setEachStartValue(key) {
 				return float(o.startValues[key] || currentPosition[key]);
@@ -311,12 +311,12 @@
 		},
 		
 		// Calculate the first "legacy" easing parameter
-		_getLegacyEasingValue = function (o, currentAnimationTime) {
+		_getLegacyEasingValue = function (o, currentAnimationTime, currentAnimationDuration, currentStartAnimationPosition) {
 			return _setEach(o, {}, function _computeLegacyEasingValue(key) {
 				var
-				dist = targetPosition[key] - currentStartAnimationPosition[key],
+				currentDist = targetPosition[key] - currentStartAnimationPosition[key],
 				timeRatio = Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration[key]));
-				return currentStartAnimationPosition[key] + (timeRatio * dist);
+				return currentStartAnimationPosition[key] + (timeRatio * currentDist);
 			});
 		},
 		
@@ -372,22 +372,25 @@
 						var startValues = _getStartValues(o, currentPosition);
 						
 						// If we should restart anim on event
-						if (!!o.restartOnEvent) {
+						//if (!!o.restartOnEvent) {
 							// Update target distances
 							_setEach(o, targetDistance, function _updateTargetDistance(key) {
 								return targetPosition[key] - startValues[key];
 							});
-						}
+						//}
 						
 						// Update current duration
 						currentAnimationDuration = _getDuration(t, o, targetDistance, startValues, targetPosition);
 						
-						// Set start as current
-						currentStartAnimationPosition = startValues;
-						
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
 						// This acts as the new animation start
 						if (!isMoving || !!o.restartOnEvent) {
+							// Set start as current
+							//currentStartAnimationPosition = startValues;
+							currentStartAnimationPosition = _setEach(o, {}, function _updateStartPos(key) {
+								return startValues[key] || currentPosition[key] || 0;
+							});
+							
 							lastAnimatedTimeStamp = eventTimeStamp-1;
 						}
 					} // if changed
@@ -405,7 +408,10 @@
 						return currentAnimationTime < currentAnimationDuration[key];
 					},
 					// Linear/swing algorithm
-					linearPosition = _getLegacyEasingValue(o, currentAnimationTime),
+					linearPosition = _getLegacyEasingValue(o, 
+												currentAnimationTime,
+												currentAnimationDuration,
+												currentStartAnimationPosition),
 					easingCurPosition = {},
 					easingIsNumeric = function (key) {
 						return $.isNumeric(easingCurPosition[key]);
@@ -544,7 +550,7 @@
 			// A strategy function for your custom event.
 			// This parameters accepts function (e, o, targetPosition, ...),
 			// string (containing the name of the function) or and
-			// object that contains mutiple stategy ({scroll:..., click:...}.
+			// object that contains multiple stategy ({scroll:..., click:...}.
 			// Note that this function will receive all arguments you would
 			// expect from that event, after the targetPosition parameter.
 			// scroll, click, mouseover, mousemove and touchmove are already
@@ -552,6 +558,8 @@
 			strategy: null,
 			
 			// A function that permits override of the stating values
+			// function (options, currentPosition)
+			// Can be a plain object too
 			startValues: null, 
 			
 			// Set to true to get extra data in the console.
@@ -604,7 +612,7 @@
 			// Init "globals"
 			_initVariables(o);
 			
-			// Hook up on event
+			// Hook up on events
 			o.container.on(o.event, _handleEvent);
 			
 			// Always return jQuery object
