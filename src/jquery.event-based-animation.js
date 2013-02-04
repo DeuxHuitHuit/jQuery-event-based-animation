@@ -135,7 +135,11 @@
 		
 		// Parse the distance
 		getAbsDistance = function (key) {
-			return Math.abs(int(targetDistance[key]));
+			// this is the distance left to run
+			//return Math.abs(int(targetDistance[key]));
+			
+			// Use absolute distance
+			return Math.abs(int(startValues[key]) - int(targetValues[key]));
 		};
 		
 		// For each property
@@ -311,12 +315,12 @@
 		},
 		
 		// Calculate the first "legacy" easing parameter
-		_getLegacyEasingValue = function (o, currentAnimationTime, currentAnimationDuration, currentStartAnimationPosition) {
+		_getLegacyEasingValue = function (o, animationTime, animationDuration, startAnimationPosition, targetPosition) {
 			return _setEach(o, {}, function _computeLegacyEasingValue(key) {
 				var
-				currentDist = targetPosition[key] - currentStartAnimationPosition[key],
-				timeRatio = Math.min(1, sdiv(currentAnimationTime, currentAnimationDuration[key]));
-				return currentStartAnimationPosition[key] + (timeRatio * currentDist);
+				currentDist = targetPosition[key] - startAnimationPosition[key],
+				timeRatio = Math.min(1, sdiv(animationTime, animationDuration[key]));
+				return startAnimationPosition[key] + (timeRatio * currentDist);
 			});
 		},
 		
@@ -371,17 +375,6 @@
 						// Save the start point of the animation
 						var startValues = _getStartValues(o, currentPosition);
 						
-						// If we should restart anim on event
-						//if (!!o.restartOnEvent) {
-							// Update target distances
-							_setEach(o, targetDistance, function _updateTargetDistance(key) {
-								return targetPosition[key] - startValues[key];
-							});
-						//}
-						
-						// Update current duration
-						currentAnimationDuration = _getDuration(t, o, targetDistance, startValues, targetPosition);
-						
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
 						// This acts as the new animation start
 						if (!isMoving || !!o.restartOnEvent) {
@@ -391,8 +384,24 @@
 								return startValues[key] || currentPosition[key] || 0;
 							});
 							
+							// Make it in the past
 							lastAnimatedTimeStamp = eventTimeStamp-1;
+							
+							// Update current duration
+							currentAnimationDuration = _getDuration(t, o, targetDistance, currentStartAnimationPosition, targetPosition);
+							
 						}
+						
+						// If we should restart anim on event
+						//if (!!o.restartOnEvent) {
+							// Update target distances
+							_setEach(o, targetDistance, function _updateTargetDistance(key) {
+								return targetPosition[key] - currentStartAnimationPosition[key];
+							});
+						//}
+						
+						
+						
 					} // if changed
 					// continue where we are at 
 					else {
@@ -411,7 +420,8 @@
 					linearPosition = _getLegacyEasingValue(o, 
 												currentAnimationTime,
 												currentAnimationDuration,
-												currentStartAnimationPosition),
+												currentStartAnimationPosition,
+												targetPosition),
 					easingCurPosition = {},
 					easingIsNumeric = function (key) {
 						return $.isNumeric(easingCurPosition[key]);
