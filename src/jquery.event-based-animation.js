@@ -136,10 +136,7 @@
 		// Parse the distance
 		getAbsDistance = function (key) {
 			// this is the distance left to run
-			//return Math.abs(int(targetDistance[key]));
-			
-			// Use absolute distance
-			return Math.abs(int(startValues[key]) - int(targetValues[key]));
+			return Math.abs(int(targetDistance[key]));
 		};
 		
 		// For each property
@@ -388,7 +385,10 @@
 							lastAnimatedTimeStamp = eventTimeStamp-1;
 							
 							// Update current duration
-							currentAnimationDuration = _getDuration(t, o, targetDistance, currentStartAnimationPosition, targetPosition);
+							currentAnimationDuration = _getDuration(t, o, 
+										targetDistance, 
+										currentStartAnimationPosition, 
+										targetPosition);
 							
 						}
 						
