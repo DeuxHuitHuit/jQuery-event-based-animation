@@ -15,6 +15,9 @@
 	// Window object
 	win = $(window),
 	
+	// Path for items without an offset
+	defaultOffset = {left:0,top:0},
+	
 	// Safe division
 	sdiv = function (n, d) {
 		// This function will be compiled as a one liner
@@ -218,7 +221,7 @@
 		eventTimeStamp = 0,
 		
 		// event strategies
-		eventStrategies = $.extend({}, _defaultEventStrategies);
+		eventStrategies = $.extend({}, _defaultEventStrategies),
 		
 		// Last animation frame
 		lastAnimatedTimeStamp = eventTimeStamp,
@@ -252,9 +255,6 @@
 		
 		// Animating flag
 		isMoving = false,
-		
-		// Path for items without an offset
-		defaultOffset = {left:0,top:0},
 		
 		// Handle the container event
 		_handleEvent = function (e) {
