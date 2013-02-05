@@ -207,6 +207,13 @@
 		};
 	}
 	
+	// isNumerix support
+	if (!$.isFunction($.isNumeric)) {
+		$.isNumeric = function (n) {
+			return !$.isNaN(n);
+		};
+	}
+	
 	// jQuery plugin
 	$.fn.eventAnimate = function (options) {
 		
