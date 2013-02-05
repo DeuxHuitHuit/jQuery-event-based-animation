@@ -155,7 +155,7 @@
 			startValues = o.startValues(o, currentPosition);
 		} else if ($.isPlainObject(o.startValues)) {
 			startValues = _setEach(o, {}, function _setEachStartValue(key) {
-				return float(o.startValues[key] || currentPosition[key]);
+				return $.isNumeric(o.startValues[key]) ? float(o.startValues[key]) : currentPosition[key];
 			});
 		}
 		// use current Position if nothing is found
@@ -382,7 +382,7 @@
 							});
 							
 							// Make it in the past
-							lastAnimatedTimeStamp = eventTimeStamp-1;
+							lastAnimatedTimeStamp = eventTimeStamp - 1;
 							
 							// Update current duration
 							currentAnimationDuration = _getDuration(t, o, 
@@ -390,17 +390,16 @@
 										currentStartAnimationPosition, 
 										targetPosition);
 							
+							// Sync current position
+							currentPosition = _setEach(o, currentPosition, function _updateStartPos(key) {
+								return currentStartAnimationPosition[key];
+							});
 						}
 						
-						// If we should restart anim on event
-						//if (!!o.restartOnEvent) {
-							// Update target distances
-							_setEach(o, targetDistance, function _updateTargetDistance(key) {
-								return targetPosition[key] - currentStartAnimationPosition[key];
-							});
-						//}
-						
-						
+						// Always update target distances
+						_setEach(o, targetDistance, function _updateTargetDistance(key) {
+							return targetPosition[key] - currentStartAnimationPosition[key];
+						});
 						
 					} // if changed
 					// continue where we are at 
@@ -552,7 +551,7 @@
 			
 			// A callback function called when the animation begins.
 			// function (currentAnimationTime, currentPosition)
-			start: null, 
+			start: null,
 			
 			// A easing function to use. $.easing.def or linear if omitted.
 			easing: null,
@@ -570,7 +569,7 @@
 			// A function that permits override of the stating values
 			// function (options, currentPosition)
 			// Can be a plain object too
-			startValues: null, 
+			startValues: null,
 			
 			// Set to true to get extra data in the console.
 			// Can be set per property, i.e. {x:false, y:true}

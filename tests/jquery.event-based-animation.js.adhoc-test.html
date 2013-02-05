@@ -146,8 +146,8 @@
 				debug: true,
 				//duration: 1000,
 				durationRatio: {
-					x: 1,
-					y: 3
+					x: 2,
+					y: 6
 				},
 				restartOnEvent: true,
 				step: function (time, position) {
@@ -156,11 +156,9 @@
 						top: position.y + 'px'
 					});
 				},
-				startValues: function (options) {
-					return {
-						x: 0,
-						y: 0
-					};
+				startValues: {
+					x: 0,
+					y: 0
 				}
 			});
 		},
