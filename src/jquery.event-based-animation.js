@@ -492,7 +492,7 @@
 					}
 					
 					// end Callback
-					if (timer === null) {
+					if (timer === null && currentAnimationTime > 0) {
 						if ($.isFunction(o.complete)) {
 							o.complete.call(t, currentAnimationTime, currentPosition);
 						}

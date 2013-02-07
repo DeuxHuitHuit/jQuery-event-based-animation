@@ -25,7 +25,7 @@ module.exports = function(grunt) {
 			}
 		},
 		qunit: {
-			files: [testFile, testFile + '&jquery=1.7', testFile + '&jquery=1.6']
+			files: [testFile, testFile + '&jquery=1.8', testFile + '&jquery=1.7', testFile + '&jquery=1.6']
 		},
 		lint: {
 			files: ['grunt.js', 'src/jquery.*.js']
