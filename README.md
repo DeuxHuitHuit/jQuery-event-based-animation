@@ -82,6 +82,10 @@ These are all the supported options and their default values.
 	// function (currentAnimationTime, currentPosition)
 	complete: null,
 	
+	// The number of ms to wait after the last step before
+	// calling the complete callback
+	completeDelay: 16,
+	
 	// A callback function called when the animation begins.
 	// function (currentAnimationTime, currentPosition)
 	start: null, 
@@ -100,6 +104,8 @@ These are all the supported options and their default values.
 	strategy: null,
 	
 	// A function that permits override of the stating values
+	// function (options, currentPosition)
+	// Can be a plain object too
 	startValues: null, 
 	
 	// Set to true to get extra data in the console.
@@ -115,6 +121,7 @@ As always, feel free to fork and pull some love.
 
 - Version 1.1 - 2013-01-xx
 	- Added mutiple properties support
+	- Revisited the event loop
 
 - Version 1.0 - 2012-12-21
 	- Initial version

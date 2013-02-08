@@ -261,8 +261,17 @@
 		// Reference the current timer
 		timer = null,
 		
+		// Reference to the 'end' timer
+		completeTimer = null,
+		
 		// Animating flag
 		isMoving = false,
+		
+		// Resets all the flag at the end of animation
+		_resetFlags = function () {
+			isMoving = false;
+			timer = null;
+		},
 		
 		// Handle the container event
 		_handleEvent = function (e) {
@@ -289,7 +298,7 @@
 				
 				//  Schedule frame if not moving
 				if (!isMoving) {
-					startTimer();
+					startTimer(!completeTimer);
 				}
 				
 			} else {
@@ -362,6 +371,12 @@
 		_nextFrame = function () {
 			
 			if(!_checkStop(o)) {
+				
+				// clear complete timeout
+				if (!!completeTimer) {
+					clearTimeout(completeTimer);
+					completeTimer = null;
+				}
 				
 				// save travel distance needed
 				_setEach(o, targetDistance, function _setTargetDistance(key) {
@@ -476,43 +491,47 @@
 					// assure moving flag is on
 					isMoving = true;
 					
-					// if we still have time left on the animation
-					if (_validateEach(o, hasTimeLeft, true)) {
-						// queue next frame
-						startTimer(true);
-					} else {
-						// animation stopped
-						timer = null;
-						isMoving = false;
-					}
-					
 					// call callback with new ghost position
 					if ($.isFunction(o.step)) {
 						o.step.call(t, currentAnimationTime, currentPosition);
 					}
 					
-					// end Callback
-					if (timer === null && currentAnimationTime > 0) {
-						if ($.isFunction(o.complete)) {
-							o.complete.call(t, currentAnimationTime, currentPosition);
-						}
+					// if we still have time left on the animation
+					if (_validateEach(o, hasTimeLeft, true)) {
+						// queue next frame
+						startTimer(true);
+					}
+					
+					// end callback
+					else if (currentAnimationTime > 0) {
+						// animation stopped
+						_resetFlags();
+						// schedule complete timer
+						completeTimer = setTimeout(function callComplete() {
+							if ($.isFunction(o.complete)) {
+								o.complete.call(t, currentAnimationTime, currentPosition);
+							}
+						}, o.completeDelay);
+						
 						// reset if we have to
 						currentPosition = _getStartValues(o, currentPosition);
+					} 
+					// duration and current time are 0
+					else {
+						resetFlags();
 					}
 					
 				} 
 				// no distance found
 				else {
 					// animation won't run
-					timer = null;
-					isMoving = false;
+					_resetFlags();
 				}
 			} 
 			// animation stopped
 			else {
 				// we stop, no timer is needed
-				timer = null;
-				isMoving = false;
+				_resetFlags();
 			}
 		},
 		
@@ -555,6 +574,10 @@
 			// A callback function called when the animation ends.
 			// function (currentAnimationTime, currentPosition)
 			complete: null,
+			
+			// The number of ms to wait after the last step before
+			// calling the complete callback
+			completeDelay: 16,
 			
 			// A callback function called when the animation begins.
 			// function (currentAnimationTime, currentPosition)
