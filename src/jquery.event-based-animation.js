@@ -298,11 +298,11 @@
 		},
 		
 		// Start a new timer
-		startTimer = function () {
+		startTimer = function (schedule) {
 			if (!_checkStop(o)) {
 				
 				// Only schedule for frame
-				if (!!o.delayStart) {
+				if (!!o.delayStart || !!schedule) {
 					timer = _setTimeout(_nextFrame, o);
 				}
 				// Start the animation right now
@@ -479,7 +479,7 @@
 					// if we still have time left on the animation
 					if (_validateEach(o, hasTimeLeft, true)) {
 						// queue next frame
-						startTimer();
+						startTimer(true);
 					} else {
 						// animation stopped
 						timer = null;
