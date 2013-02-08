@@ -207,11 +207,16 @@
 		};
 	}
 	
-	// isNumerix support
+	// isNumeric support
 	if (!$.isFunction($.isNumeric)) {
 		$.isNumeric = function (n) {
 			return !$.isNaN(n);
 		};
+	}
+	
+	// on support
+	if (!$.isFunction($.fn.on)) {
+		$.fn.on = $.fn.bind;
 	}
 	
 	// jQuery plugin
