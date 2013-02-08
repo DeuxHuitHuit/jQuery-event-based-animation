@@ -7,7 +7,7 @@
 	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.10.0/qunit-1.10.0.css" type="text/css"/>
 	
 	<style type="text/css">
-  	</style>
+	</style>
 	
 	<script>
 		(function (w, doc,co) {
@@ -35,9 +35,11 @@
 </head>
 <body>
 	<h1 id="qunit-header">jQuery Event Based Animation</h1>  
-    <h2 id="qunit-banner"></h2>  
-    <h2 id="qunit-userAgent"></h2>  
-    <ol id="qunit-tests"></ol>
+	<h2 id="qunit-banner"></h2>  
+	<h2 id="qunit-userAgent"></h2>  
+	<ol id="qunit-tests"></ol>
+	
+	<div id="integration"></div>
 
 	<script src="../src/jquery.event-based-animation.js"></script> 
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.10.0/qunit-1.10.0.js"></script>
@@ -50,9 +52,11 @@
 		
 		win = $(window), 
 		
+		integration = $('#integration'),
+		
 		runTests = function  () {
 			
-			module('jQuery.event-based-animation');
+			module('jQuery.event-based-animation.unit');
 			
 			test('int', function intTest () {
 				equal($.eventAnimate.int(1), 1, '1');
@@ -165,6 +169,31 @@
 				o.easing = {x:'swing'};
 				equal($.eventAnimate._getEasing(o, 'x'), o.easing.x, 'x o.easing.x');
 				equal($.eventAnimate._getEasing(o, 'y'), $.easing.def, 'y $.easing.def');
+			});
+			
+			module('jQuery.event-based-animation.integration');
+			
+			asyncTest('$.fn.eventAnimate', function integrationTest () {
+				var stepCalled = false;
+				integration.eventAnimate({
+					properties: 'a',
+					easing: 'swing',
+					debug: true,
+					strategy: function (e, o, targetPosition) {
+						// make the target position change
+						// in order to fire the step function
+						targetPosition.a = 50;
+					},
+					step: function (time, position) {
+						stepCalled = true;
+					},
+					complete: function () {
+						// start the test when animation is done
+						start();
+						ok(stepCalled, 'Step has been called on event');
+					}
+				});
+				integration.trigger('scroll');
 			});
 			
 		}; // end run tests

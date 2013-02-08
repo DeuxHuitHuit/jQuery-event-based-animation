@@ -518,7 +518,7 @@
 					} 
 					// duration and current time are 0
 					else {
-						resetFlags();
+						_resetFlags();
 					}
 					
 				} 
