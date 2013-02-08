@@ -289,15 +289,7 @@
 				
 				//  Schedule frame if not moving
 				if (!isMoving) {
-					
-					// Only schedule for frame
-					if (!!o.delayStart) {
-						startTimer();
-					}
-					// Start the animation right now
-					else {
-						_nextFrame(); 
-					}
+					startTimer();
 				}
 				
 			} else {
@@ -308,7 +300,15 @@
 		// Start a new timer
 		startTimer = function () {
 			if (!_checkStop(o)) {
-				timer = _setTimeout(_nextFrame, o);
+				
+				// Only schedule for frame
+				if (!!o.delayStart) {
+					timer = _setTimeout(_nextFrame, o);
+				}
+				// Start the animation right now
+				else {
+					_nextFrame(); 
+				}
 			} 
 			// animation stopped, so no timer is allowed
 			else {
