@@ -228,7 +228,21 @@
 		t = $(this),
 		
 		// Quick timestamp
-		now = $.now,
+		now = function () {
+			if (window.performance && window.performance.now){
+				return window.performance.now();
+			} else {
+				if (window.performance && window.performance.webkitNow){
+					return window.performance.webkitNow();
+				} else {
+					if (Date.now){
+						return Date.now();
+					} else {
+						return $.now();
+					}
+				}
+			}
+		},
 		
 		// Last event triggered
 		eventTimeStamp = 0,
