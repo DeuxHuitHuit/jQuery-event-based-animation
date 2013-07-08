@@ -80,24 +80,22 @@
 		return result;
 	},
 	
+	RAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||  
+				window.webkitRequestAnimationFrame || window.msRequestAnimationFrame ||
+				window.oRequestAnimationFrame || window.setTimeout,
+				
+	CRAF = window.cancelAnimationFrame || window.webkitCancelRequestAnimationFrame ||
+				window.mozCancelRequestAnimationFrame || window.oCancelRequestAnimationFrame ||
+				window.msCancelRequestAnimationFrame  || window.clearTimeout,
+	
 	// Raf...
 	_setTimeout = function (fx, o) {
-		var w = window,
-			frm = w.requestAnimationFrame || w.mozRequestAnimationFrame ||  
-				w.webkitRequestAnimationFrame || w.msRequestAnimationFrame ||
-				w.oRequestAnimationFrame || w.setTimeout;
-	
-		return frm(fx, frm === w.setTimeout ? o.tick : o.container.get(0));
+		return RAF(fx, RAF === w.setTimeout ? o.tick : o.container.get(0));
 	},
 	
 	// cRaf...
 	_clearTimeout = function (timeout) {
-		var w = window,
-			frm = w.cancelAnimationFrame || w.webkitCancelRequestAnimationFrame ||
-				w.mozCancelRequestAnimationFrame || w.oCancelRequestAnimationFrame ||
-				w.msCancelRequestAnimationFrame  || w.clearTimeout;
-				
-		return frm(timeout);
+		return CRAF(timeout);
 	},
 	
 	// Parses the duration options
@@ -693,6 +691,20 @@
 		_getStartValues: _getStartValues,
 		_getEasing: _getEasing,
 		_defaultEventStrategies: _defaultEventStrategies
+	};
+	
+	// Conveniance methods
+	
+	$.raf = function (callback, options) {
+		return RAF(function wrapCallback() {
+			if (callaback(arguments) {
+				$.raf(callback);
+			};
+		}, $.extends({tick: 16, container: win}, options);
+	};
+	
+	$.craf = function (timeout) {
+		CRAF(timeout);	
 	};
 	
 })(jQuery);
