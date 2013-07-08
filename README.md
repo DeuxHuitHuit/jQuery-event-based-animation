@@ -3,12 +3,13 @@
 #### Version 1.1
 
 jQuery plugin that offers a different way to do animations. jQuery animations are time based,
-i.e. total duration us know from the start. This project aims to break this barrier by allowing
+i.e. total duration AND end values must be known from the start.
+This project aims to break this barrier by allowing
 you to change end (or target) values during the animation, based on multiples events. If you try
 to do something like this with `$.fn.animate` and `$.fn.stop`, you will see that the effect is
 jerky and that real control is pretty impossible to achieve. 
 
-The two main goals of this project is to avoid having the same *raf* loop copied all over
+The two main goals of this project is to avoid having the same *RAF* loop copied all over
 the place and to provide a flexible approach to event based animation yet maintaining a
 simple ways to customize the behavior, mostly via callbacks functions.
 
