@@ -90,7 +90,7 @@
 	
 	// Raf...
 	_setTimeout = function (fx, o) {
-		return RAF(fx, RAF === w.setTimeout ? o.tick : o.container.get(0));
+		return RAF(fx, RAF === window.setTimeout ? o.tick : o.container.get(0));
 	},
 	
 	// cRaf...
@@ -697,10 +697,10 @@
 	
 	$.raf = function (callback, options) {
 		return RAF(function wrapCallback() {
-			if (callaback(arguments) {
+			if (callaback(arguments)) {
 				$.raf(callback);
 			};
-		}, $.extends({tick: 16, container: win}, options);
+		}, $.extends({tick: 16, container: win}, options));
 	};
 	
 	$.craf = function (timeout) {
