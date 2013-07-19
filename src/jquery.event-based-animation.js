@@ -704,7 +704,7 @@
 	};
 	
 	$.craf = function (timeout) {
-		CRAF(timeout);	
+		CRAF(timeout);
 	};
 	
 })(jQuery);
