@@ -697,10 +697,10 @@
 	
 	$.raf = function (callback, options) {
 		return RAF(function wrapCallback() {
-			if (callaback(arguments)) {
+			if (callback(arguments)) {
 				$.raf(callback);
-			};
-		}, $.extends({tick: 16, container: win}, options));
+			}
+		}, $.extend({tick: 16, container: win}, options));
 	};
 	
 	$.craf = function (timeout) {
