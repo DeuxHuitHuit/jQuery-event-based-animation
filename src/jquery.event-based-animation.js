@@ -12,6 +12,8 @@
 	// Utilities
 	var
 	
+	DATA_KEY = 'event-based-animation',
+	
 	// Window object
 	win = $(window),
 	
@@ -154,6 +156,23 @@
 		});
 	},
 	
+	// Quick timestamp
+	now = function () {
+		if (window.performance && window.performance.now) {
+			return window.performance.now();
+		} else {
+			if (window.performance && window.performance.webkitNow) {
+				return window.performance.webkitNow();
+			} else {
+				if (Date.now) {
+					return Date.now();
+				} else {
+					return $.now();
+				}
+			}
+		}
+	},
+	
 	// parses the startValue options
 	_getStartValues = function (o, currentPosition) {
 		var startValues = null;
@@ -230,28 +249,16 @@
 	// jQuery plugin
 	$.fn.eventAnimate = function (options) {
 		
-		var
-		
 		// the target DOMElement
-		t = $(this),
+		var t = $(this);
 		
-		// Quick timestamp
-		now = function () {
-			if (window.performance && window.performance.now) {
-				return window.performance.now();
-			} else {
-				if (window.performance && window.performance.webkitNow) {
-					return window.performance.webkitNow();
-				} else {
-					if (Date.now) {
-						return Date.now();
-					} else {
-						return $.now();
-					}
-				}
-			}
-		},
+		if (options === 'destroy') {
+			var data = t.data(DATA_KEY);
+			t.off(data.event);
+			return t;
+		}
 		
+		var
 		// Last event triggered
 		eventTimeStamp = 0,
 		
@@ -684,6 +691,9 @@
 			
 			// Hook up on events
 			o.container.on(o.event, _handleEvent);
+			
+			// Save data
+			t.data(DATA_KEY, o);
 			
 			// Always return jQuery object
 			return t;
