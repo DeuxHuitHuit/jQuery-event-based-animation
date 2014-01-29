@@ -32,10 +32,10 @@ module.exports = function (grunt) {
 			'<%= pkg.author.name %> (<%= pkg.author.url %>);\n' +
 			'* Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n'
 		},
-		min: {
+		concat: {
 			dist: {
 				src: ['<banner:meta.banner>'].concat(SRC_FILES),
-				dest: 'dist/<%= pkg.name %>.min.js'
+				dest: 'dist/<%= pkg.name %>.js'
 			}
 		},
 		qunit: {
@@ -101,7 +101,7 @@ module.exports = function (grunt) {
 		uglify: {
 			prod: {
 				files: {
-					'dist/<%= pkg.name %>.min.js': '<%= min.dist.dest %>' 
+					'dist/<%= pkg.name %>.min.js': '<%= concat.dist.dest %>' 
 				}
 			},
 			options: {
@@ -194,7 +194,7 @@ module.exports = function (grunt) {
 		
 		// Default task.
 		grunt.registerTask('dev',     ['jshint', 'complexity']);
-		grunt.registerTask('build',   ['buildnum', 'uglify', 'fix-source-map']);
+		grunt.registerTask('build',   ['buildnum', 'concat', 'uglify', 'fix-source-map']);
 		grunt.registerTask('test',    ['connect', 'qunit']);
 		grunt.registerTask('default', ['dev', 'test', 'build']);
 	};
