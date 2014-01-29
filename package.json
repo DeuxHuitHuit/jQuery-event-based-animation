@@ -2,7 +2,7 @@
   "name": "jquery.event-based-animation",
   "title": "jQuery Event Based Animation",
   "description": "jQuery plugin that offers a different way to do animations. End (or target) values can be changed during the animation.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "homepage": "https://github.com/DeuxHuitHuit/jQuery-event-based-animation",
   "author": {
     "name": "Deux Huit Huit",
@@ -18,11 +18,19 @@
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://raw.github.com/DeuxHuitHuit/jQuery-event-based-animation/master/LICENSE.txt"
+      "url": "http://deuxhuithuit.mit-license.org"
     }
   ],
-  "dependencies": {
-	"grunt": "~0.3.9"
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "matchdep": "~0.3.0",
+    "grunt-complexity": "~0.1.3",
+    "grunt-contrib-uglify": "~0.2.7",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-concat": "~0.2.0",
+    "grunt-contrib-qunit": "~0.3.0",
+    "grunt-contrib-connect": "~0.5.0"
   },
   "keywords": []
 }

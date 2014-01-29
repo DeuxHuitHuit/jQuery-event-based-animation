@@ -1,6 +1,6 @@
 # jQuery Event Based Animation
 
-#### Version 1.1
+#### Version 1.2
 
 jQuery plugin that offers a different way to do animations. jQuery animations are time based,
 i.e. total duration AND end values must be known from the start.

@@ -1,13 +1,13 @@
 /*
- *  Event Based Animation v1.0 - jQuery plugin
+ *  Event Based Animation v1.2 - jQuery plugin
  *
- *  Copyright (c) 2012-2013 Deux Huit Huit (http://www.deuxhuithuit.com/)
+ *  Copyright (c) 2012-2014 Deux Huit Huit (http://www.deuxhuithuit.com/)
  *  Licensed under the MIT LICENSE
  *  (https://raw.github.com/DeuxHuitHuit/jQuery-event-based-animation/master/LICENSE.txt)
  */
 (function ($, undefined) {
 	
-	"use strict";
+	'use strict';
 	
 	// Utilities
 	var
@@ -16,7 +16,7 @@
 	win = $(window),
 	
 	// Path for items without an offset
-	defaultOffset = {left:0,top:0},
+	defaultOffset = {left: 0, top: 0},
 	
 	// Safe division
 	sdiv = function (n, d) {
@@ -26,7 +26,7 @@
 		if (!n || !d) {
 			return 0;
 		}
-		return n/d;
+		return n / d;
 	},
 	
 	// Assure we are dealing with numbers
@@ -62,8 +62,12 @@
 	},
 	
 	// Quick validator
-	_and = function (a,b) { return !!(a && b); },
-	_or = function (a,b) { return !!(a || b); },
+	_and = function (a, b) {
+		return !!(a && b);
+	},
+	_or = function (a, b) {
+		return !!(a || b);
+	},
 	_validateEach = function (o, validator, isOr) {
 		var 
 		isAnd = !isOr,
@@ -99,17 +103,21 @@
 	},
 	
 	// Parses the duration options
-	_getDuration = function(t, o, targetDistance, startValues, targetValues) {
+	_getDuration = function (t, o, targetDistance, startValues, targetValues) {
 		var 
 		// The result
 		r = {},
 		// Get ratio object
-		durationRatio = ($.isFunction(o.durationRatio) && o.durationRatio.call(t, o, targetDistance, startValues, targetValues)) ||
-						o.durationRatio || {},
+		durationRatio = (
+				$.isFunction(o.durationRatio) && 
+				o.durationRatio.call(t, o, targetDistance, startValues, targetValues)
+				) || o.durationRatio || {},
 						
 		// Get duration object
-		duration = ($.isFunction(o.duration) && o.duration.call(t, o, targetDistance, startValues, targetValues)) ||
-						o.duration || {},
+		duration = (
+				$.isFunction(o.duration) && 
+				o.duration.call(t, o, targetDistance, startValues, targetValues)
+				) || o.duration || {},
 		
 		// Get a single int value
 		getInt = function (object, key) {
@@ -153,7 +161,9 @@
 			startValues = o.startValues(o, currentPosition);
 		} else if ($.isPlainObject(o.startValues)) {
 			startValues = _setEach(o, {}, function _setEachStartValue(key) {
-				return $.isNumeric(o.startValues[key]) ? float(o.startValues[key]) : currentPosition[key];
+				return $.isNumeric(o.startValues[key]) ? 
+					float(o.startValues[key]) : 
+					currentPosition[key];
 			});
 		}
 		// use current Position if nothing is found
@@ -227,13 +237,13 @@
 		
 		// Quick timestamp
 		now = function () {
-			if (window.performance && window.performance.now){
+			if (window.performance && window.performance.now) {
 				return window.performance.now();
 			} else {
-				if (window.performance && window.performance.webkitNow){
+				if (window.performance && window.performance.webkitNow) {
 					return window.performance.webkitNow();
 				} else {
-					if (Date.now){
+					if (Date.now) {
 						return Date.now();
 					} else {
 						return $.now();
@@ -293,7 +303,7 @@
 		// Handle the container event
 		_handleEvent = function (e) {
 			var 
-			args = [e,o,targetPosition],
+			args = [e, o, targetPosition],
 			eventName = e.type || o.event,
 			strategy = eventStrategies[eventName];
 			
@@ -310,7 +320,7 @@
 				
 				// Update the event time
 				if (!isMoving || !!o.restartOnEvent) {
-					eventTimeStamp = now()-1; // make it in the past
+					eventTimeStamp = now() - 1; // make it in the past
 				}
 				
 				//  Schedule frame if not moving
@@ -345,7 +355,9 @@
 		},
 		
 		// Calculate the first "legacy" easing parameter
-		_getLegacyEasingValue = function (o, animationTime, animationDuration, startAnimationPosition, targetPosition) {
+		_getLegacyEasingValue = function (
+			o, animationTime, animationDuration, startAnimationPosition, targetPosition
+		) {
 			return _setEach(o, {}, function _computeLegacyEasingValue(key) {
 				var
 				currentDist = targetPosition[key] - startAnimationPosition[key],
@@ -360,12 +372,12 @@
 				_forEach(o, function _debugOutputOneProp(key) {
 					if (o.debug === true || o.debug[key] === true) {
 						console.log(lastAnimatedTimeStamp +
-								' Target ' + key + ' ' + parseInt(targetPosition[key],10) + 
-								' - Start ' + parseInt(currentStartAnimationPosition[key],10) + 
-								' - Linear ' + parseInt(linearPosition[key],10) + 
-								' - Eased ' + parseInt(easingCurPosition[key],10) + 
-								' - Time ' + Math.min(currentAnimationTime, currentAnimationDuration[key]) + 
-								' - Duration ' + currentAnimationDuration[key]);
+						' Target ' + key + ' ' + parseInt(targetPosition[key], 10) + 
+						' - Start ' + parseInt(currentStartAnimationPosition[key], 10) + 
+						' - Linear ' + parseInt(linearPosition[key], 10) + 
+						' - Eased ' + parseInt(easingCurPosition[key], 10) + 
+						' - Time ' + Math.min(currentAnimationTime, currentAnimationDuration[key]) +
+						' - Duration ' + currentAnimationDuration[key]);
 					}
 				});
 			}
@@ -386,8 +398,9 @@
 		
 		// Called at every tick
 		_nextFrame = function () {
+			/*jshint maxstatements:50 */
 			
-			if(!_checkStop(o)) {
+			if (!_checkStop(o)) {
 				
 				// clear complete timeout
 				if (!!completeTimer) {
@@ -414,11 +427,17 @@
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
 						// This acts as the new animation start
 						if (!isMoving || !!o.restartOnEvent) {
+							var _updateStartPos = function (key) {
+								return startValues[key] || currentPosition[key] || 0;
+							};
+							
+							var _syncStartPos = function (key) {
+								return currentStartAnimationPosition[key];
+							};
+							
 							// Set start as current
 							//currentStartAnimationPosition = startValues;
-							currentStartAnimationPosition = _setEach(o, {}, function _updateStartPos(key) {
-								return startValues[key] || currentPosition[key] || 0;
-							});
+							currentStartAnimationPosition = _setEach(o, {}, _updateStartPos);
 							
 							// Make it in the past
 							lastAnimatedTimeStamp = eventTimeStamp - 1;
@@ -430,9 +449,7 @@
 										targetPosition);
 							
 							// Sync current position
-							currentPosition = _setEach(o, currentPosition, function _updateStartPos(key) {
-								return currentStartAnimationPosition[key];
-							});
+							currentPosition = _setEach(o, currentPosition, _syncStartPos);
 						}
 						
 						// Always update target distances
@@ -441,10 +458,7 @@
 						});
 						
 					} // if changed
-					// continue where we are at 
-					else {
-						// nothing ?
-					}
+					
 					
 					// Begin Var
 					var 
