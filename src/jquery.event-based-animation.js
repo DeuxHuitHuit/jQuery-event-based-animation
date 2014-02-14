@@ -427,9 +427,6 @@
 					// i.e. an event occur between two frames
 					// or before the current one
 					if (eventTimeStamp > lastAnimatedTimeStamp) {
-					
-						// Save the start point of the animation
-						var startValues = _getStartValues(o, currentPosition);
 						
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
 						// This acts as the new animation start
@@ -442,8 +439,10 @@
 								return currentStartAnimationPosition[key];
 							};
 							
+							// Save the start point of the animation
+							var startValues = _getStartValues(o, currentPosition);
+							
 							// Set start as current
-							//currentStartAnimationPosition = startValues;
 							currentStartAnimationPosition = _setEach(o, {}, _updateStartPos);
 							
 							// Make it in the past
