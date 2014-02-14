@@ -538,6 +538,7 @@
 							currentPosition,
 							currentStartAnimationPosition,
 							targetPosition,
+							targetDistance
 							o
 						);
 					}

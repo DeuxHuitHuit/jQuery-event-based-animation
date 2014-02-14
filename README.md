@@ -76,7 +76,7 @@ These are all the supported options and their default values.
 	stop: null,
 	
 	// A function to call at each step of the animation.
-	// function (currentAnimationTime, currentPosition, startPosition, targetPosition, o)
+	// function (currentAnimationTime, currentPosition, startPosition, targetPosition, targetDistance, o)
 	step: null,
 	
 	// A callback function called when the animation ends.
