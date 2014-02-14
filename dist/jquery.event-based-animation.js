@@ -427,9 +427,6 @@
 					// i.e. an event occur between two frames
 					// or before the current one
 					if (eventTimeStamp > lastAnimatedTimeStamp) {
-					
-						// Save the start point of the animation
-						var startValues = _getStartValues(o, currentPosition);
 						
 						// Set Last Animated Time Stamp to the new scroll Event Time Stamp
 						// This acts as the new animation start
@@ -442,8 +439,10 @@
 								return currentStartAnimationPosition[key];
 							};
 							
+							// Save the start point of the animation
+							var startValues = _getStartValues(o, currentPosition);
+							
 							// Set start as current
-							//currentStartAnimationPosition = startValues;
 							currentStartAnimationPosition = _setEach(o, {}, _updateStartPos);
 							
 							// Make it in the past
@@ -523,7 +522,13 @@
 					
 					// start Callback
 					if (!isMoving && $.isFunction(o.start)) {
-						o.start.call(t, currentAnimationTime, currentPosition);
+						o.start.call(t,
+							currentAnimationTime,
+							currentPosition,
+							currentStartAnimationPosition,
+							targetPosition,
+							o
+						);
 					}
 					
 					// assure moving flag is on
@@ -606,7 +611,7 @@
 			stop: null,
 			
 			// A function to call at each step of the animation.
-			// function (currentAnimationTime, currentPosition)
+			// function (currentAnimationTime, currentPosition, startPosition, targetPosition, o)
 			step: null,
 			
 			// A callback function called when the animation ends.
@@ -627,7 +632,7 @@
 			// A strategy function for your custom event.
 			// This parameters accepts function (e, o, targetPosition, ...),
 			// string (containing the name of the function) or and
-			// object that contains multiple stategy ({scroll:..., click:...}.
+			// object that contains multiple strategy ({scroll:..., click:...}.
 			// Note that this function will receive all arguments you would
 			// expect from that event, after the targetPosition parameter.
 			// scroll, click, mouseover, mousemove and touchmove are already
