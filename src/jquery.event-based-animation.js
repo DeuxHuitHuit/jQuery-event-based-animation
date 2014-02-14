@@ -524,10 +524,7 @@
 					if (!isMoving && $.isFunction(o.start)) {
 						o.start.call(t,
 							currentAnimationTime,
-							currentPosition,
-							currentStartAnimationPosition,
-							targetPosition,
-							o
+							currentPosition
 						);
 					}
 					
@@ -536,7 +533,13 @@
 					
 					// call callback with new ghost position
 					if ($.isFunction(o.step)) {
-						o.step.call(t, currentAnimationTime, currentPosition);
+						o.step.call(t, 
+							currentAnimationTime,
+							currentPosition,
+							currentStartAnimationPosition,
+							targetPosition,
+							o
+						);
 					}
 					
 					// if we still have time left on the animation
