@@ -76,7 +76,7 @@ These are all the supported options and their default values.
 	stop: null,
 	
 	// A function to call at each step of the animation.
-	// function (currentAnimationTime, currentPosition)
+	// function (currentAnimationTime, currentPosition, currentStartAnimationPosition, targetPosition, o)
 	step: null,
 	
 	// A callback function called when the animation ends.
@@ -97,7 +97,7 @@ These are all the supported options and their default values.
 	// A strategy function for your custom event.
 	// This parameters accepts function (e, o, targetPosition, ...),
 	// string (containing the name of the function) or and
-	// object that contains mutiple stategy ({scroll:..., click:...}.
+	// object that contains multiple strategy ({scroll:..., click:...}.
 	// Note that this function will receive all arguments you would
 	// expect from that event, after the targetPosition parameter.
 	// scroll, click, mouseover, mousemove and touchmove are already
