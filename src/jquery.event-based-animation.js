@@ -254,7 +254,9 @@
 		
 		if (options === 'destroy') {
 			var data = t.data(DATA_KEY);
-			t.off(data.event);
+			if (!!data) {
+				t.off(data.event);
+			}
 			return t;
 		}
 		
@@ -538,7 +540,7 @@
 							currentPosition,
 							currentStartAnimationPosition,
 							targetPosition,
-							targetDistance
+							targetDistance,
 							o
 						);
 					}
