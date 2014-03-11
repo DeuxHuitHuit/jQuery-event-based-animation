@@ -2,7 +2,7 @@
   "name": "jquery.event-based-animation",
   "title": "jQuery Event Based Animation",
   "description": "jQuery plugin that offers a different way to do animations. End (or target) values can be changed during the animation.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "homepage": "https://github.com/DeuxHuitHuit/jQuery-event-based-animation",
   "author": {
     "name": "Deux Huit Huit",
