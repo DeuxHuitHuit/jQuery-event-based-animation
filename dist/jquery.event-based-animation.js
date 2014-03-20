@@ -106,43 +106,40 @@
 	
 	// Parses the duration options
 	_getDuration = function (t, o, targetDistance, startValues, targetValues) {
-		var 
 		// The result
-		r = {},
+		var r = {};
 		// Get ratio object
-		durationRatio = (
-				$.isFunction(o.durationRatio) && 
-				o.durationRatio.call(t, o, targetDistance, startValues, targetValues)
-				) || o.durationRatio || {},
+		var durationRatio = $.isFunction(o.durationRatio) ?
+				o.durationRatio.call(t, o, targetDistance, startValues, targetValues) :
+				(o.durationRatio || {});
 						
 		// Get duration object
-		duration = (
-				$.isFunction(o.duration) && 
-				o.duration.call(t, o, targetDistance, startValues, targetValues)
-				) || o.duration || {},
+		var duration = $.isFunction(o.duration) ? 
+				o.duration.call(t, o, targetDistance, startValues, targetValues) :
+				(o.duration || {});
 		
 		// Get a single int value
-		getInt = function (object, key) {
+		var getInt = function (object, key) {
 			return int(object[key]) || int(object);
-		},
+		};
 		
 		// Get a single float value
-		getFloat = function (object, key) {
+		var getFloat = function (object, key) {
 			return float(object[key]) || float(object);
-		},
+		};
 		
 		// Parse one duration ratio
-		getDurationRatio = function (key) {
+		var getDurationRatio = function (key) {
 			return getFloat(durationRatio, key);
-		},
+		};
 		
 		// Parse one duration
-		getDuration = function (key) {
+		var getDuration = function (key) {
 			return getInt(duration, key);
-		},
+		};
 		
 		// Parse the distance
-		getAbsDistance = function (key) {
+		var getAbsDistance = function (key) {
 			// this is the distance left to run
 			return Math.abs(int(targetDistance[key]));
 		};
