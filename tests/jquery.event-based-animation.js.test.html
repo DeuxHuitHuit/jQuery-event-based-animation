@@ -124,6 +124,13 @@
 				};
 				dur = $.eventAnimate._getDuration(this, o, targetDistance, startValues, targetValues);
 				deepEqual(dur, {x:30, y:200}, 'x 30, y 200 with fx');
+				
+				o.durationRatio = undefined;
+				o.duration = function (o, targetDistance, startValues, targetValues) {
+					return {x:3, y:1};
+				};
+				dur = $.eventAnimate._getDuration(this, o, targetDistance, startValues, targetValues);
+				deepEqual(dur, {x:3, y:1}, 'x 3, y 1 with fx and undefined durationRatio');
 			});
 			
 			test('_getStartValues', function startValuesTest () {
